@@ -1,98 +1,356 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Velto – Multi‑tenant SME Platform
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Velto is a system that allows Nigerian SMEs to get their own branded subdomain (`{slug}.velto.app`) to sell **products** (e‑commerce) or offer **services** (hair, makeup, tailoring, etc.). Customers discover tenants via a **video/image feed** and **marketplace** on the main domain (`velto.app`), then place orders (products) or bookings (services).
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**First tenant:** Taj Kulture (`tajkulture.velto.app`) – used as live example and test case.
 
-## Description
+**Target users:** Gen‑Z customers and micro‑business owners who currently rely on WhatsApp/Instagram.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+---
 
-## Project setup
+## 🚀 Features (MVP)
 
-```bash
-$ npm install
+### Tenant Side
+- Register (business name, phone, location, category, business type: `PRODUCT_SELLER` / `SERVICE_PROVIDER`)
+- Automatic subdomain: `{slug}.velto.app` (slug from business name)
+- Storefront at subdomain – profile, products/services, portfolio
+- Product CRUD (name, price, stock, media)
+- Service CRUD (name, price, `negotiable` flag, duration, media)
+- Order/Booking management (view, update status: pending → confirmed → completed/cancelled)
+- Basic dashboard (order count, revenue)
+
+### Customer Side
+- Register/login (phone/email, cookie‑based)
+- Main domain (`velto.app`):
+  - Video/image feed (from followed tenants + trending)
+  - Marketplace (filter tenants by category, location, type)
+  - Search
+- Place order (product: quantity, delivery address)
+- Place booking (service: date/time, special instructions)
+- My orders/bookings (status tracking)
+- Follow/unfollow tenant
+- Like, comment, share posts
+
+### Shared / Infrastructure
+- WhatsApp notification (Twilio) via Bull queue
+- Email notification (SendGrid + Handlebars templates) via Bull queue
+- In‑app notifications
+- Media upload (Cloudinary)
+- Wildcard subdomain resolution (`*.velto.app` → same NestJS app)
+- Redis caching (with in‑memory fallback)
+
+---
+
+## 🧱 Technology Stack
+
+| Layer               | Technology                                                |
+|---------------------|-----------------------------------------------------------|
+| **Backend**         | Node.js + NestJS (TypeScript)                             |
+| **API**             | REST (OpenAPI – Swagger)                                  |
+| **ORM**             | Prisma with `@prisma/adapter-pg`                          |
+| **Database**        | PostgreSQL                                                |
+| **Cache & Queues**  | Redis + Bull                                              |
+| **Storage**         | Cloudinary                                                |
+| **Notifications**   | Twilio (WhatsApp), SendGrid (Email)                       |
+| **Auth**            | HTTP‑only cookies (JWT access + refresh tokens)           |
+| **Logging**         | Winston (structured JSON, correlation ID, daily rotation)|
+| **Error handling**  | Custom error codes + global exception filter              |
+| **Deployment**      | Docker + DigitalOcean (or Render)                         |
+
+---
+
+## 📁 Project Structure (High‑Level)
+
+```
+velto-backend/
+├── src/
+│   ├── main.ts
+│   ├── app.module.ts
+│   ├── common/
+│   │   ├── logger/               # Winston logger + correlation ID
+│   │   ├── guards/               # AuthGuard, TenantGuard, RolesGuard
+│   │   ├── interceptors/         # TransformInterceptor, LoggingInterceptor
+│   │   ├── middleware/           # CorrelationIdMiddleware, TenantMiddleware
+│   │   ├── decorators/           # @Public, @CurrentUser, @CurrentTenant
+│   │   ├── filters/              # GlobalExceptionFilter
+│   │   ├── repositories/         # Base repository (interface + impl)
+│   │   ├── services/             # Base service (interface + impl)
+│   │   ├── dto/                  # Pagination, API response
+│   │   └── errors/               # Error codes + AppError hierarchy
+│   ├── domain/
+│   │   ├── events/               # Event types, payloads, EventBus
+│   │   ├── value-objects/        # PhoneNumber, Slug, Price, Email
+│   │   └── shared/               # Result type (functional error handling)
+│   ├── infrastructure/
+│   │   ├── database/             # PrismaService (adapter-pg)
+│   │   ├── cache/                # Redis cache (with memory fallback)
+│   │   ├── queue/                # Bull queues (email, whatsapp, analytics)
+│   │   └── storage/              # CloudinaryService
+│   ├── modules/
+│   │   ├── auth/                 # Register, login, logout, refresh
+│   │   ├── user/                 # User repository
+│   │   ├── tenant/               # Tenant registration, storefront
+│   │   ├── post/                 # Posts, feed, likes
+│   │   ├── follow/               # Follow/unfollow tenants
+│   │   ├── like/                 # Like/unlike posts
+│   │   ├── comment/              # Comments on posts
+│   │   ├── product/              # Product CRUD
+│   │   ├── service/              # Service CRUD
+│   │   ├── order/                # Order placement & management
+│   │   ├── booking/              # Booking placement & management
+│   │   ├── marketplace/          # Search & filter
+│   │   ├── portfolio/            # Portfolio items (media)
+│   │   └── notification/         # Email, WhatsApp, in‑app (queue processors)
+│   └── serializers/              # Explicit response formatters
+├── prisma/
+│   ├── schema.prisma             # Complete database schema
+│   └── migrations/
+├── docker-compose.yml            # PostgreSQL + Redis
+├── .env.example
+└── README.md
 ```
 
-## Compile and run the project
+---
 
+## 🔧 Setup & Installation
+
+### Prerequisites
+- Node.js 20+
+- Docker & Docker Compose
+- (Optional) Cloudinary, SendGrid, Twilio accounts for production
+
+### 1. Clone the repository
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+git clone https://github.com/your-org/velto-backend.git
+cd velto-backend
 ```
 
-## Run tests
+### 2. Install dependencies
+```bash
+npm install
+```
+
+### 3. Environment configuration
+Copy `.env.example` to `.env` and fill in required values:
+```bash
+cp .env.example .env
+```
+
+**Minimum required variables** (can use dummy values for optional services during development):
+```env
+PORT=3000
+NODE_ENV=development
+APP_DOMAIN="velto.app"
+COOKIE_DOMAIN=".velto.app"
+DATABASE_URL="postgresql://velto:velto123@localhost:5432/velto_db"
+JWT_SECRET="your-secret-key"
+REDIS_URL="redis://localhost:6379"
+```
+
+Optional but recommended for notifications:
+- Cloudinary (media uploads)
+- Twilio (WhatsApp)
+- SendGrid (email)
+
+### 4. Start Docker services
+```bash
+docker-compose up -d
+```
+
+### 5. Run database migrations
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
+
+### 6. Start the development server
+```bash
+npm run start:dev
+```
+
+The API will be available at `http://localhost:3000`.
+
+### 7. Test with a subdomain locally
+Add to `/etc/hosts` (or use `lvh.me`):
+```
+127.0.0.1   tajkulture.velto.app
+```
+
+Then visit `http://tajkulture.velto.app:3000/tenants/current` (should return tenant data after seeding).
+
+---
+
+## 📚 API Overview (Key Endpoints)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/auth/register` | Register a new customer |
+| `POST` | `/auth/login` | Login → sets HTTP‑only cookies |
+| `POST` | `/auth/logout` | Logout → clears cookies |
+| `POST` | `/auth/refresh` | Refresh access token |
+| `GET` | `/posts/feed` | Get personalised feed (followed tenants + trending) |
+| `GET` | `/posts/trending` | Get global trending posts |
+| `POST` | `/posts/:id/like` | Like/unlike a post |
+| `GET` | `/marketplace?q=&category=&location=` | Search/filter tenants |
+| `POST` | `/orders` | Place an order |
+| `POST` | `/bookings` | Place a booking |
+| `GET` | `/tenants/storefront/:slug` | Public storefront data |
+| `POST` | `/tenants` | Create a tenant (tenant admin) |
+| `POST` | `/tenant/products` | Create a product |
+| `POST` | `/tenant/services` | Create a service |
+
+All responses follow a standard format:
+```json
+{
+  "success": true,
+  "data": { ... },
+  "timestamp": "2025-...",
+  "correlationId": "uuid"
+}
+```
+
+Error responses:
+```json
+{
+  "success": false,
+  "error": {
+    "code": "AUTH_100",
+    "message": "Invalid credentials",
+    "timestamp": "...",
+    "path": "/auth/login",
+    "correlationId": "..."
+  }
+}
+```
+
+---
+
+## 🧠 Architecture Highlights
+
+### Domain‑Driven Design (DDD‑lite)
+- **Repositories** – abstraction over Prisma (interface + implementation)
+- **Services** – business logic, no direct database calls
+- **Value objects** – `PhoneNumber`, `Slug`, `Price`, `Email` (immutable, self‑validating)
+- **Domain events** – emitted via `EventBus` → routed to Bull queues
+
+### Event‑Driven Notifications
+- All side effects (email, WhatsApp, in‑app) are queued
+- Dedicated queues: `email`, `whatsapp`, `analytics`
+- Retry policies, exponential backoff, and dead‑letter ready
+- Correlation ID propagates from HTTP request to queue job
+
+### Multi‑tenant Architecture
+- Wildcard DNS (`*.velto.app`) → same NestJS app
+- `TenantMiddleware` extracts subdomain → attaches tenant to `req.tenant`
+- `TenantOwnerGuard` ensures user owns the tenant
+
+### Security
+- HTTP‑only cookies (access + refresh tokens) – prevents XSS
+- Refresh token rotation
+- CORS configured for main domain and subdomains
+- Input validation with `class-validator`
+
+### Observability
+- Structured JSON logging (Winston) – ready for Datadog/ELK
+- Correlation ID across all logs and error responses
+- Daily rotating log files (production)
+- Global exception filter with unique error codes
+
+---
+
+## 🧪 Testing
 
 ```bash
-# unit tests
-$ npm run test
+# Unit tests
+npm run test
 
 # e2e tests
-$ npm run test:e2e
+npm run test:e2e
 
-# test coverage
-$ npm run test:cov
+# Test coverage
+npm run test:cov
 ```
 
-## Deployment
+**Current coverage:** ~70% (services and repositories)
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+---
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## 📦 Deployment
 
+### Using Docker
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker build -t velto-backend .
+docker run -p 3000:3000 --env-file .env velto-backend
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Using Docker Compose (production)
+```yaml
+# docker-compose.prod.yml
+services:
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    depends_on:
+      - postgres
+      - redis
+```
 
-## Resources
+### Manual (PM2)
+```bash
+npm run build
+pm2 start dist/main.js --name velto-api
+```
 
-Check out a few resources that may come in handy when working with NestJS:
+---
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+## 🔮 Roadmap (Post‑MVP)
 
-## Support
+| Phase | Features |
+|-------|----------|
+| **Phase 2** | Paystack integration, analytics dashboard, advanced search |
+| **Phase 3** | Mobile app (Expo), push notifications, live chat |
+| **Phase 4** | AI recommendations, dynamic pricing, bulk order discounts |
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+---
 
-## Stay in touch
+## 🤝 Contributing
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push (`git push origin feature/amazing`)
+5. Open a Pull Request
 
-## License
+**Coding standards:**
+- ESLint + Prettier (Airbnb style)
+- 100% TypeScript
+- Write comments explaining *why*, not *what*
+- No `console.log` – use the custom logger
+- Unit tests for all services and repositories
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+---
+
+## 📄 License
+
+MIT © Velto
+
+---
+
+## 🙏 Acknowledgements
+
+- NestJS community
+- Prisma ORM team
+- All contributors and early adopters
+
+---
+
+## 📞 Contact
+
+For support or enquiries: **hello@velto.app**
+
+---
+
+*Last updated: April 2026 – Still building, but the foundation is solid.*
