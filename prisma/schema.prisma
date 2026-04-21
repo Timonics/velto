@@ -1,0 +1,361 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ------------------------------
+// Enums
+// ------------------------------
+
+enum Role {
+  CUSTOMER
+  TENANT_ADMIN
+  ADMIN
+}
+
+enum BusinessType {
+  PRODUCT_SELLER
+  SERVICE_PROVIDER
+}
+
+enum Category {
+  FASHION
+  BEAUTY
+  FOOD
+  SERVICES
+  ELECTRONICS
+  OTHER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+// ------------------------------
+// Core User & Identity
+// ------------------------------
+
+model User {
+  id           String  @id @default(cuid())
+  phone        String  @unique
+  email        String? @unique
+  passwordHash String
+  role         Role    @default(CUSTOMER)
+  refreshToken String? // hashed refresh token
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  tenant   Tenant? // one-to-one
+  customer Customer?
+
+  orders    Order[]    @relation("CustomerOrders")
+  bookings  Booking[]  @relation("CustomerBookings")
+  follows   Follow[] // No explicit relation name – Prisma will infer
+  likes     Like[]
+  comments  Comment[]
+  shares    Share[]
+  feedItems FeedItem[]
+
+  @@index([phone])
+  @@index([email])
+  @@index([role])
+}
+
+model Customer {
+  id             String  @id @default(cuid())
+  userId         String  @unique
+  user           User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+  defaultAddress String?
+
+  createdAt DateTime @default(now())
+}
+
+model Tenant {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  businessName String
+  slug         String       @unique
+  businessType BusinessType
+  category     Category
+  description  String?
+  location     String?
+  lga          String?
+  logoUrl      String?
+  bannerUrl    String?
+  contactPhone String?
+  isActive     Boolean      @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products  Product[]
+  services  Service[]
+  orders    Order[]
+  bookings  Booking[]
+  portfolio PortfolioItem[]
+  followers Follow[]
+  posts     Post[]
+
+  @@index([slug])
+  @@index([businessType])
+  @@index([category])
+  @@index([location])
+  @@index([isActive])
+}
+
+model Product {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  name        String
+  description String?
+  price       Float
+  stock       Int
+  mediaUrls   String[]
+  category    Category
+  isAvailable Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orders Order[]
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([isAvailable])
+}
+
+model Service {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+
+  name        String
+  description String?
+  price       Float
+  negotiable  Boolean  @default(false)
+  duration    String?
+  mediaUrls   String[]
+  isAvailable Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings Booking[]
+
+  @@index([tenantId])
+  @@index([isAvailable])
+}
+
+model PortfolioItem {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  mediaUrl String
+  caption  String?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+model Order {
+  id          String  @id @default(cuid())
+  orderNumber String  @unique
+  customerId  String
+  customer    User    @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Restrict)
+  tenantId    String
+  tenant      Tenant  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  quantity        Int
+  totalPrice      Float
+  deliveryAddress String
+  status          OrderStatus @default(PENDING)
+  paymentMethod   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderNumber])
+  @@index([customerId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([tenantId, status])
+}
+
+model Booking {
+  id            String  @id @default(cuid())
+  bookingNumber String  @unique
+  customerId    String
+  customer      User    @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Restrict)
+  tenantId      String
+  tenant        Tenant  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  serviceId     String
+  service       Service @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+
+  scheduledDate   DateTime
+  specialRequests String?
+  status          BookingStatus @default(PENDING)
+  totalPrice      Float
+  paymentMethod   String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([bookingNumber])
+  @@index([customerId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([scheduledDate])
+  @@index([tenantId, scheduledDate])
+}
+
+model Follow {
+  id         String @id @default(cuid())
+  followerId String
+  follower   User   @relation(fields: [followerId], references: [id], onDelete: Cascade)
+  tenantId   String
+  tenant     Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([followerId, tenantId])
+  @@index([followerId])
+  @@index([tenantId])
+}
+
+// ========== Feed & Social Engagement ==========
+
+model Post {
+  id       String @id @default(cuid())
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  // Content
+  mediaUrl  String // Cloudinary URL (image or video)
+  mediaType MediaType @default(IMAGE) // IMAGE or VIDEO
+  caption   String?   @db.Text
+
+  // Engagement counters (denormalized for performance)
+  likesCount    Int @default(0)
+  commentsCount Int @default(0)
+  sharesCount   Int @default(0)
+
+  // Status
+  isPublished Boolean @default(true)
+  isDeleted   Boolean @default(false) // Soft delete
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  likes     Like[]
+  comments  Comment[]
+  shares    Share[]
+  feedItems FeedItem[]
+
+  @@index([tenantId])
+  @@index([createdAt])
+  @@index([likesCount])
+  @@index([isPublished])
+  @@index([tenantId, createdAt]) // For tenant feed
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId]) // One like per user per post
+  @@index([postId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // For nested replies (optional, MVP can skip)
+  parentId String?
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id])
+  replies  Comment[] @relation("CommentReplies")
+
+  @@index([postId])
+  @@index([userId])
+  @@index([createdAt])
+  @@index([parentId])
+}
+
+model Share {
+  id        String   @id @default(cuid())
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+// Optional: Save feed items for performance (can be generated on the fly for MVP)
+model FeedItem {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postId    String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  score     Float    @default(0) // For ranking
+  isViewed  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  expiresAt DateTime // When this feed item should no longer appear
+
+  @@unique([userId, postId])
+  @@index([userId, score, createdAt])
+  @@index([userId, expiresAt])
+}
