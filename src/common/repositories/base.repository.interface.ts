@@ -28,7 +28,6 @@ export interface FindOneOptions<T = any> {
 export interface IBaseRepository<TModel, TCreateInput, TUpdateInput> {
   /**
    * Find a record by its unique ID.
-   * Returns null if not found.
    */
   findById(id: string, include?: Record<string, boolean>): Promise<TModel | null>;
 

@@ -90,3 +90,36 @@ export interface TenantRegisteredPayload {
   slug: string;
   userId: string;
 }
+
+// ========== Post Events ==========
+export interface PostCreatedPayload {
+  postId: string;
+  tenantId: string;
+  mediaUrl: string;
+}
+
+export interface PostLikedPayload {
+  postId: string;
+  userId: string;
+  tenantId: string;
+}
+
+// ========== Follow Events ==========
+export interface FollowPayload {
+  followerId: string;
+  tenantId: string;
+}
+
+// ========== Comment Events ==========
+export interface CommentCreatedPayload {
+  commentId: string;
+  postId: string;
+  userId: string;
+  tenantId: string;
+}
+
+// ========== Like Events ==========
+export interface LikePayload {
+  postId: string;
+  userId: string;
+}

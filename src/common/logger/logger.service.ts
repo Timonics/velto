@@ -8,12 +8,6 @@
  * - Separate error log file (kept longer)
  * - Uses EnvironmentService for configuration (no direct process.env access)
  *
- * Why Winston?
- * - Most popular Node.js logging library (stable, battle-tested)
- * - Rich transports ecosystem (files, databases, cloud services)
- * - Flexible formatting (JSON, pretty, custom)
- * - Log rotation built-in via winston-daily-rotate-file
- *
  * Usage in any service:
  *   constructor(private readonly logger: LoggerService) {
  *     this.logger = logger.child('AuthService');

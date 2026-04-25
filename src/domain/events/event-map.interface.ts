@@ -1,6 +1,6 @@
 /**
  * EventMap – Links event name constants to their payload types.
- * 
+ *
  * @example
  * eventBus.emit({
  *   name: USER_EVENTS.REGISTERED,
@@ -13,7 +13,10 @@ import {
   ORDER_EVENTS,
   BOOKING_EVENTS,
   NOTIFICATION_EVENTS,
-  TENANT_EVENTS
+  TENANT_EVENTS,
+  POST_EVENTS,
+  FOLLOW_EVENTS,
+  LIKE_EVENTS,
 } from './event-types';
 
 import type {
@@ -27,7 +30,11 @@ import type {
   WhatsAppPayload,
   InAppNotificationPayload,
   PasswordResetRequestedPayload,
-  TenantRegisteredPayload
+  TenantRegisteredPayload,
+  PostCreatedPayload,
+  PostLikedPayload,
+  FollowPayload,
+  LikePayload,
 } from './event-payloads.interface';
 
 export interface EventMap {
@@ -51,6 +58,19 @@ export interface EventMap {
 
   //Tenant events
   [TENANT_EVENTS.REGISTERED]: TenantRegisteredPayload;
+
+  //Post events
+  [POST_EVENTS.CREATED]: PostCreatedPayload;
+  [POST_EVENTS.LIKED]: PostLikedPayload;
+  [POST_EVENTS.UNLIKED]: PostLikedPayload;
+
+  //Follow events
+  [FOLLOW_EVENTS.FOLLOWED]: FollowPayload;
+  [FOLLOW_EVENTS.UNFOLLOWED]: FollowPayload;
+
+  //Like events
+  [LIKE_EVENTS.CREATED]: LikePayload;
+  [LIKE_EVENTS.REMOVED]: LikePayload;
 }
 
 /**

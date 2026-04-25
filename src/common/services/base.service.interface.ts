@@ -1,6 +1,6 @@
 /**
  * Base Service Interface – Contract for all business services.
- * 
+ *
  * Why separate interface?
  * - Allows different implementations (e.g., caching layer, audit logging).
  * - Makes dependencies explicit.

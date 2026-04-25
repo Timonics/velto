@@ -9,6 +9,7 @@ import { Public } from '../../common/decorators/public.decorator';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 import { TenantOwnerGuard } from '../../common/guards/tenant-owner.guard';
 import { createSuccessResponse, ApiResponse } from '../../common/dto/api-response.dto';
+import { NotFoundError } from 'src/common/errors/app-error';
 
 @Controller('tenants')
 export class TenantController {

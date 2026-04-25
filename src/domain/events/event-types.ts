@@ -1,11 +1,11 @@
 /**
  * Event Types – Constants for all domain events.
- * 
+ *
  * WHY CONSTANTS?
  * - Avoid string typos (autocompletion + type safety)
  * - Single source of truth for event names
  * - Easy to refactor
- * 
+ *
  * Format: category.action (e.g., user.registered, order.placed)
  */
 
@@ -53,4 +53,27 @@ export const TENANT_EVENTS = {
   REGISTERED: 'tenant.registered',
   UPDATED: 'tenant.updated',
   DELETED: 'tenant.deleted',
+} as const;
+
+export const FOLLOW_EVENTS = {
+  FOLLOWED: 'follow.followed',
+  UNFOLLOWED: 'follow.unfollowed',
+} as const;
+
+export const COMMENT_EVENTS = {
+  CREATED: 'comment.created',
+  DELETED: 'comment.deleted',
+} as const;
+
+export const POST_EVENTS = {
+  CREATED: 'post.created',
+  UPDATED: 'post.updated',
+  DELETED: 'post.deleted',
+  LIKED: 'post.liked',
+  UNLIKED: 'post.unliked',
+} as const;
+
+export const LIKE_EVENTS = {
+  CREATED: 'like.created',
+  REMOVED: 'like.removed',
 } as const;

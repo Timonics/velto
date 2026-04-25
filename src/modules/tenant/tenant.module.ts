@@ -16,7 +16,11 @@ import { EventBus } from '../../domain/events/event-bus.service';
     },
     {
       provide: ITenantService,
-      useFactory: (repo: ITenantRepository, eventBus: EventBus, logger: LoggerService) => {
+      useFactory: (
+        repo: ITenantRepository,
+        eventBus: EventBus,
+        logger: LoggerService,
+      ) => {
         return new TenantServiceImpl(repo, eventBus, logger);
       },
       inject: [ITenantRepository, EventBus, LoggerService],

@@ -4,30 +4,34 @@
  * Features:
  * - Automatic NotFoundException when entity missing.
  * - Logging hooks (override sanitizeForLog).
- * - Standard CRUD.
+ * - Standard CRUD operations.
+ * - Mapping functions for create/update (allows DTO → Prisma input conversion).
  *
- * Specific services extend this class.
+ * @template TModel - The Prisma model type (e.g., Tenant, Post)
+ * @template TCreateDto - DTO for creation (e.g., CreateTenantDto)
+ * @template TUpdateDto - DTO for update (e.g., UpdateTenantDto)
+ * @template TCreateInput - Prisma create input type (e.g., Prisma.TenantCreateInput)
+ * @template TUpdateInput - Prisma update input type (e.g., Prisma.TenantUpdateInput)
  */
 
-import { NotFoundException } from '@nestjs/common';
 import { IBaseService } from './base.service.interface';
 import { IBaseRepository } from '../repositories/base.repository.interface';
 import { LoggerService } from '../logger/logger.service';
+import { NotFoundError } from '../errors/app-error';
 
 export abstract class BaseServiceImpl<
   TModel,
   TCreateDto,
   TUpdateDto,
-> implements IBaseService<TModel, TCreateDto, TUpdateDto> {
+  TCreateInput = TCreateDto,
+  TUpdateInput = TUpdateDto,
+> implements IBaseService<TModel, TCreateDto, TUpdateDto>
+{
   protected abstract readonly logger: LoggerService;
   protected abstract readonly entityName: string;
 
   constructor(
-    protected readonly repository: IBaseRepository<
-      TModel,
-      TCreateDto,
-      TUpdateDto
-    >,
+    protected readonly repository: IBaseRepository<TModel, TCreateInput, TUpdateInput>,
   ) {}
 
   async findAll(skip = 0, take = 20, where?: any): Promise<TModel[]> {
@@ -44,7 +48,7 @@ export abstract class BaseServiceImpl<
     this.logger.debug(`Finding ${this.entityName} by ID`, { id });
     const entity = await this.repository.findById(id);
     if (!entity) {
-      throw new NotFoundException(`${this.entityName} with ID ${id} not found`);
+      throw new NotFoundError(this.entityName, id);
     }
     return entity;
   }
@@ -53,7 +57,8 @@ export abstract class BaseServiceImpl<
     this.logger.info(`Creating new ${this.entityName}`, {
       data: this.sanitizeForLog(data),
     });
-    return this.repository.create(data);
+    const input = this.mapToCreateInput(data);
+    return this.repository.create(input);
   }
 
   async update(id: string, data: TUpdateDto): Promise<TModel> {
@@ -62,7 +67,8 @@ export abstract class BaseServiceImpl<
       data: this.sanitizeForLog(data),
     });
     await this.findById(id); // ensure exists
-    return this.repository.update(id, data);
+    const input = this.mapToUpdateInput(data);
+    return this.repository.update(id, input);
   }
 
   async delete(id: string): Promise<TModel> {
@@ -80,5 +86,21 @@ export abstract class BaseServiceImpl<
    */
   protected sanitizeForLog(data: any): any {
     return data;
+  }
+
+  /**
+   * Map create DTO to repository create input.
+   * Override when the DTO does not match the repository input type.
+   */
+  protected mapToCreateInput(dto: TCreateDto): TCreateInput {
+    return dto as unknown as TCreateInput;
+  }
+
+  /**
+   * Map update DTO to repository update input.
+   * Override when the DTO does not match the repository input type.
+   */
+  protected mapToUpdateInput(dto: TUpdateDto): TUpdateInput {
+    return dto as unknown as TUpdateInput;
   }
 }

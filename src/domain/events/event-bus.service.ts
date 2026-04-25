@@ -16,7 +16,7 @@
 
 import { Injectable } from '@nestjs/common';
 import { BaseEvent, EventMap } from './event-map.interface';
-import { USER_EVENTS, ORDER_EVENTS, BOOKING_EVENTS } from './event-types';
+import { USER_EVENTS, ORDER_EVENTS, BOOKING_EVENTS, POST_EVENTS } from './event-types';
 import { EmailQueueService } from '../../infrastructure/queue/email.queue.service';
 import { WhatsAppQueueService } from '../../infrastructure/queue/whatsapp.queue.service';
 import { AnalyticsQueueService } from '../../infrastructure/queue/analytics.queue.service';
@@ -41,7 +41,7 @@ export class EventBus {
   constructor(
     private readonly emailQueue: EmailQueueService,
     private readonly whatsappQueue: WhatsAppQueueService,
-    private readonly analyticsQueue: AnalyticsQueueService,
+    // private readonly analyticsQueue: AnalyticsQueueService,
     logger: LoggerService,
   ) {
     this.logger = logger.child('EventBus');
@@ -60,6 +60,9 @@ export class EventBus {
     // Booking events → WhatsApp queue (appointment reminders)
     this.routingMap.set(BOOKING_EVENTS.CREATED, this.whatsappQueue);
     this.routingMap.set(BOOKING_EVENTS.CONFIRMED, this.whatsappQueue);
+
+    //Posting events → 
+    this.routingMap.set(POST_EVENTS.LIKED, this.emailQueue)
 
     // Analytics events → analytics queue (page views, conversions)
     // this.routingMap.set(ANALYTICS_EVENTS.PAGE_VIEW, this.analyticsQueue);
