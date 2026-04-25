@@ -2,7 +2,7 @@ import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common'
 import { EnvironmentModule } from './config/env/env.module';
 import { PrismaModule } from './infrastructure/database/prisma.module';
 import { LoggerModule } from './common/logger/logger.module';
-// import { UserModule } from './modules/user/user.module';
+import { UserModule } from './modules/user/user.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { QueueModule } from './infrastructure/queue/queue.module';
 import { EventBusModule } from './domain/events/event-bus.module';
@@ -15,7 +15,7 @@ import { TenantMiddleware } from './common/middleware/tenant.middleware';
     EnvironmentModule,
     PrismaModule,
     LoggerModule,
-    // UserModule,
+    UserModule,
     QueueModule,
     EventBusModule,
     NotificationModule,

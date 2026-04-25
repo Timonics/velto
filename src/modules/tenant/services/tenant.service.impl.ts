@@ -6,14 +6,20 @@ import { LoggerService } from '../../../common/logger/logger.service';
 import { EventBus } from '../../../domain/events/event-bus.service';
 import { TENANT_EVENTS } from '../../../domain/events/event-types';
 import { Tenant, Prisma } from 'generated/prisma/client';
-import { CreateTenantDto, UpdateTenantDto } from '../dto/requests';
+import { CreateTenantDto, UpdateTenantDto } from '../dto';
 import { Slug } from '../../../domain/value-objects/slug.vo';
 import { ConflictError } from '../../../common/errors/app-error';
 import { ILogger } from 'src/common/logger/logger.interface';
 
 @Injectable()
 export class TenantServiceImpl
-  extends BaseServiceImpl<Tenant, CreateTenantDto, UpdateTenantDto, Prisma.TenantCreateInput, Prisma.TenantUpdateInput>
+  extends BaseServiceImpl<
+    Tenant,
+    CreateTenantDto,
+    UpdateTenantDto,
+    Prisma.TenantCreateInput,
+    Prisma.TenantUpdateInput
+  >
   implements ITenantService
 {
   protected readonly logger: ILogger;
@@ -29,12 +35,14 @@ export class TenantServiceImpl
   }
 
   // Override mapping for create (including userId)
-  protected mapToCreateInput(dto: CreateTenantDto & { userId?: string }): Prisma.TenantCreateInput {
+  protected mapToCreateInput(
+    dto: CreateTenantDto & { userId?: string },
+  ): Prisma.TenantCreateInput {
     const userId = (dto as any).userId;
     if (!userId) throw new Error('userId is required to create tenant');
 
     const slugResult = Slug.create(dto.businessName);
-    if (slugResult.isErr()) throw new ConflictError(slugResult.error);
+    if (slugResult.isErr()) throw new ConflictError(slugResult.getError());
     const slug = slugResult.getValue().getValue();
 
     return {
@@ -78,22 +86,33 @@ export class TenantServiceImpl
     return this.repository.searchTenants(query, skip, take);
   }
 
-  async getByCategory(category: string, skip = 0, take = 20): Promise<Tenant[]> {
+  async getByCategory(
+    category: string,
+    skip = 0,
+    take = 20,
+  ): Promise<Tenant[]> {
     return this.repository.findByCategory(category, skip, take);
   }
 
-  async getByBusinessType(businessType: string, skip = 0, take = 20): Promise<Tenant[]> {
+  async getByBusinessType(
+    businessType: string,
+    skip = 0,
+    take = 20,
+  ): Promise<Tenant[]> {
     return this.repository.findByBusinessType(businessType, skip, take);
   }
 
   // Override create to check uniqueness and emit event
   async create(data: CreateTenantDto & { userId: string }): Promise<Tenant> {
     const slugResult = Slug.create(data.businessName);
-    if (slugResult.isErr()) throw new ConflictError(slugResult.error);
+    if (slugResult.isErr()) throw new ConflictError(slugResult.getError());
     const slug = slugResult.getValue().getValue();
 
     const existing = await this.repository.findBySlug(slug, true);
-    if (existing) throw new ConflictError('Business name already taken', { field: 'businessName' });
+    if (existing)
+      throw new ConflictError('Business name already taken', {
+        field: 'businessName',
+      });
 
     const tenant = await super.create(data);
     await this.eventBus.emit({
@@ -105,14 +124,20 @@ export class TenantServiceImpl
         userId: data.userId,
       },
     });
-    this.logger.info('Tenant created', { tenantId: tenant.id, slug: tenant.slug });
+    this.logger.info('Tenant created', {
+      tenantId: tenant.id,
+      slug: tenant.slug,
+    });
     return tenant;
   }
 
   // Prevent slug changes on update
   async update(id: string, data: UpdateTenantDto): Promise<Tenant> {
     if (data.businessName) {
-      this.logger.warn('Attempt to change businessName – slug remains unchanged', { tenantId: id });
+      this.logger.warn(
+        'Attempt to change businessName – slug remains unchanged',
+        { tenantId: id },
+      );
       delete data.businessName;
     }
     return super.update(id, data);

@@ -1,16 +1,11 @@
 import { Module } from '@nestjs/common';
-import { IFollowRepository } from './follow.repository.interface';
-import { FollowRepositoryImpl } from './follow.repository.impl';
-import { IFollowService } from './follow.service.interface';
-import { FollowServiceImpl } from './follow.service.impl';
 import { FollowController } from './follow.controller';
+import { FollowRepositoryImpl } from './follow.repository.impl';
+import { FollowServiceImpl } from './follow.service.impl';
 
 @Module({
   controllers: [FollowController],
-  providers: [
-    { provide: IFollowRepository, useClass: FollowRepositoryImpl },
-    { provide: IFollowService, useClass: FollowServiceImpl },
-  ],
-  exports: [IFollowService, IFollowRepository],
+  providers: [FollowRepositoryImpl, FollowServiceImpl],
+  exports: [FollowServiceImpl, FollowRepositoryImpl],
 })
 export class FollowModule {}

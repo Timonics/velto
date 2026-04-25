@@ -22,7 +22,8 @@ export interface TenantResponse {
 
 export class TenantSerializer extends BaseSerializer<Tenant, TenantResponse> {
   serialize(tenant: Tenant, options?: SerializerOptions): TenantResponse {
-    const fullAddress = [tenant.location, tenant.lga].filter(Boolean).join(', ') || null;
+    const fullAddress =
+      [tenant.location, tenant.lga].filter(Boolean).join(', ') || null;
 
     return {
       id: tenant.id,
@@ -39,8 +40,12 @@ export class TenantSerializer extends BaseSerializer<Tenant, TenantResponse> {
       fullAddress,
       storefrontUrl: `https://${tenant.slug}.${process.env.APP_DOMAIN}`,
       isActive: tenant.isActive,
-      createdAt: options?.includeTimestamps ? this.formatDate(tenant.createdAt) : null,
-      updatedAt: options?.includeTimestamps ? this.formatDate(tenant.updatedAt) : null,
+      createdAt: options?.includeTimestamps
+        ? this.formatDate(tenant.createdAt)
+        : null,
+      updatedAt: options?.includeTimestamps
+        ? this.formatDate(tenant.updatedAt)
+        : null,
     };
   }
 }

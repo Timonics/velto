@@ -104,6 +104,11 @@ export interface PostLikedPayload {
   tenantId: string;
 }
 
+export interface PostDeletedPayload {
+  postId: string;
+  tenantId: string;
+}
+
 // ========== Follow Events ==========
 export interface FollowPayload {
   followerId: string;
@@ -116,6 +121,17 @@ export interface CommentCreatedPayload {
   postId: string;
   userId: string;
   tenantId: string;
+}
+
+export interface CommentUpdatedPayload {
+  commentId: string;
+  postId: string;
+  userId: string;
+}
+export interface CommentDeletedPayload {
+  commentId: string;
+  postId: string;
+  userId: string;
 }
 
 // ========== Like Events ==========

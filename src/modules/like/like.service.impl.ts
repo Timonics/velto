@@ -5,10 +5,11 @@ import { NotFoundError, ConflictError } from '../../common/errors/app-error';
 import { LoggerService } from '../../common/logger/logger.service';
 import { EventBus } from '../../domain/events/event-bus.service';
 import { LIKE_EVENTS } from '../../domain/events/event-types';
+import { ILogger } from 'src/common/logger/logger.interface';
 
 @Injectable()
 export class LikeServiceImpl implements ILikeService {
-  private readonly logger;
+  private readonly logger: ILogger;
 
   constructor(
     private readonly likeRepository: ILikeRepository,

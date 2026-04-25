@@ -17,6 +17,7 @@ import {
   POST_EVENTS,
   FOLLOW_EVENTS,
   LIKE_EVENTS,
+  COMMENT_EVENTS,
 } from './event-types';
 
 import type {
@@ -35,6 +36,10 @@ import type {
   PostLikedPayload,
   FollowPayload,
   LikePayload,
+  PostDeletedPayload,
+  CommentCreatedPayload,
+  CommentDeletedPayload,
+  CommentUpdatedPayload,
 } from './event-payloads.interface';
 
 export interface EventMap {
@@ -63,6 +68,7 @@ export interface EventMap {
   [POST_EVENTS.CREATED]: PostCreatedPayload;
   [POST_EVENTS.LIKED]: PostLikedPayload;
   [POST_EVENTS.UNLIKED]: PostLikedPayload;
+  [POST_EVENTS.DELETED]: PostDeletedPayload;
 
   //Follow events
   [FOLLOW_EVENTS.FOLLOWED]: FollowPayload;
@@ -71,6 +77,11 @@ export interface EventMap {
   //Like events
   [LIKE_EVENTS.CREATED]: LikePayload;
   [LIKE_EVENTS.REMOVED]: LikePayload;
+
+  // Comment events
+  [COMMENT_EVENTS.CREATED]: CommentCreatedPayload;
+  [COMMENT_EVENTS.UPDATED]: CommentUpdatedPayload;
+  [COMMENT_EVENTS.DELETED]: CommentDeletedPayload;
 }
 
 /**

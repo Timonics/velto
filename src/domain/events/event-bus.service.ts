@@ -63,6 +63,10 @@ export class EventBus {
 
     //Posting events → 
     this.routingMap.set(POST_EVENTS.LIKED, this.emailQueue)
+    this.routingMap.set(POST_EVENTS.DELETED, this.emailQueue)
+
+    //Comment events → email queue (new comment notifications)
+    // this.routingMap.set(COMMENT_EVENTS.CREATED, this.emailQueue);
 
     // Analytics events → analytics queue (page views, conversions)
     // this.routingMap.set(ANALYTICS_EVENTS.PAGE_VIEW, this.analyticsQueue);

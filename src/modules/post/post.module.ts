@@ -1,35 +1,37 @@
 import { Module } from '@nestjs/common';
 import { PostController } from './post.controller';
-import { IPostRepository } from './post.repository.interface';
 import { PostRepositoryImpl } from './post.repository.impl';
-import { IPostService } from './post.service.interface';
 import { PostServiceImpl } from './post.service.impl';
 import { FollowModule } from '../follow/follow.module';
 import { LikeModule } from '../like/like.module';
+import { FollowServiceImpl } from '../follow/follow.service.impl';
+import { LikeRepositoryImpl } from '../like/like.repository.impl';
+import { EventBus } from '../../domain/events/event-bus.service';
+import { LoggerService } from '../../common/logger/logger.service';
 
 @Module({
   imports: [FollowModule, LikeModule],
   controllers: [PostController],
   providers: [
-    { provide: IPostRepository, useClass: PostRepositoryImpl },
+    PostRepositoryImpl,
     {
-      provide: IPostService,
+      provide: PostServiceImpl,
       useFactory: (
-        repo: IPostRepository,
-        followService: any,
-        likeRepo: any,
-        eventBus: any,
-        logger: any,
+        repo: PostRepositoryImpl,
+        followService: FollowServiceImpl,
+        likeRepo: LikeRepositoryImpl,
+        eventBus: EventBus,
+        logger: LoggerService,
       ) => new PostServiceImpl(repo, followService, likeRepo, eventBus, logger),
       inject: [
-        IPostRepository,
-        'IFollowService',
-        'ILikeRepository',
-        'EventBus',
-        'LoggerService',
+        PostRepositoryImpl,
+        FollowServiceImpl,
+        LikeRepositoryImpl,
+        EventBus,
+        LoggerService,
       ],
     },
   ],
-  exports: [IPostService, IPostRepository],
+  exports: [PostServiceImpl, PostRepositoryImpl],
 })
 export class PostModule {}

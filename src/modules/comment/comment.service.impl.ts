@@ -6,10 +6,12 @@ import { NotFoundError, ForbiddenError } from '../../common/errors/app-error';
 import { EventBus } from '../../domain/events/event-bus.service';
 import { COMMENT_EVENTS } from '../../domain/events/event-types';
 import { LoggerService } from '../../common/logger/logger.service';
+import { Comment } from 'generated/prisma/client';
+import { ILogger } from 'src/common/logger/logger.interface';
 
 @Injectable()
 export class CommentServiceImpl implements ICommentService {
-  private readonly logger;
+  private readonly logger: ILogger;
 
   constructor(
     private readonly commentRepository: ICommentRepository,
@@ -20,7 +22,11 @@ export class CommentServiceImpl implements ICommentService {
     this.logger = logger.child('CommentService');
   }
 
-  async create(postId: string, userId: string, content: string): Promise<Comment> {
+  async create(
+    postId: string,
+    userId: string,
+    content: string,
+  ): Promise<Comment> {
     // Verify post exists
     const post = await this.postRepository.findById(postId);
     if (!post) throw new NotFoundError('Post', postId);
@@ -36,17 +42,29 @@ export class CommentServiceImpl implements ICommentService {
 
     await this.eventBus.emit({
       name: COMMENT_EVENTS.CREATED,
-      payload: { commentId: comment.id, postId, userId, tenantId: post.tenantId },
+      payload: {
+        commentId: comment.id,
+        postId,
+        userId,
+        tenantId: post.tenantId,
+      },
     });
 
-    this.logger.info(`Comment ${comment.id} created on post ${postId} by user ${userId}`);
+    this.logger.info(
+      `Comment ${comment.id} created on post ${postId} by user ${userId}`,
+    );
     return comment;
   }
 
-  async update(commentId: string, userId: string, content: string): Promise<Comment> {
+  async update(
+    commentId: string,
+    userId: string,
+    content: string,
+  ): Promise<Comment> {
     const comment = await this.commentRepository.findById(commentId);
     if (!comment) throw new NotFoundError('Comment', commentId);
-    if (comment.userId !== userId) throw new ForbiddenError('You can only edit your own comments');
+    if (comment.userId !== userId)
+      throw new ForbiddenError('You can only edit your own comments');
 
     const updated = await this.commentRepository.update(commentId, { content });
     await this.eventBus.emit({
@@ -60,7 +78,8 @@ export class CommentServiceImpl implements ICommentService {
   async delete(commentId: string, userId: string): Promise<void> {
     const comment = await this.commentRepository.findById(commentId);
     if (!comment) throw new NotFoundError('Comment', commentId);
-    if (comment.userId !== userId) throw new ForbiddenError('You can only delete your own comments');
+    if (comment.userId !== userId)
+      throw new ForbiddenError('You can only delete your own comments');
 
     await this.commentRepository.delete(commentId);
     await this.postRepository.decrementCommentsCount(comment.postId);
@@ -71,7 +90,11 @@ export class CommentServiceImpl implements ICommentService {
     this.logger.info(`Comment ${commentId} deleted`);
   }
 
-  async getCommentsByPost(postId: string, skip = 0, take = 20): Promise<Comment[]> {
+  async getCommentsByPost(
+    postId: string,
+    skip = 0,
+    take = 20,
+  ): Promise<Comment[]> {
     // Verify post exists (optional but good for UX)
     const post = await this.postRepository.findById(postId);
     if (!post) throw new NotFoundError('Post', postId);

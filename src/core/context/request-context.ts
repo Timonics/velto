@@ -78,6 +78,13 @@ export class RequestContext {
     return RequestContext.get<string>('userId');
   }
 
+  /**
+   * Set the current user ID in the context
+   */
+  static setUserId(userId: string): void {
+    RequestContext.set('userId', userId);
+  }
+
   static getIpAddress() {
     return RequestContext.get('ipAddr');
   }

@@ -1,5 +1,4 @@
 import { BaseSerializer, SerializerOptions } from './base.serializer';
-import { Comment } from '@prisma/client';
 
 export interface CommentResponse {
   id: string;
@@ -10,7 +9,7 @@ export interface CommentResponse {
     id: string;
     phone: string;
     email: string | null;
-  };
+  } | null;
 }
 
 export class CommentSerializer extends BaseSerializer<any, CommentResponse> {

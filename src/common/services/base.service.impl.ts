@@ -16,8 +16,8 @@
 
 import { IBaseService } from './base.service.interface';
 import { IBaseRepository } from '../repositories/base.repository.interface';
-import { LoggerService } from '../logger/logger.service';
 import { NotFoundError } from '../errors/app-error';
+import { ILogger } from '../logger/logger.interface';
 
 export abstract class BaseServiceImpl<
   TModel,
@@ -27,7 +27,7 @@ export abstract class BaseServiceImpl<
   TUpdateInput = TUpdateDto,
 > implements IBaseService<TModel, TCreateDto, TUpdateDto>
 {
-  protected abstract readonly logger: LoggerService;
+  protected abstract readonly logger: ILogger;
   protected abstract readonly entityName: string;
 
   constructor(

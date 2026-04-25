@@ -1,6 +1,6 @@
 import { IBaseService } from '../../../common/services/base.service.interface';
 import { Tenant } from 'generated/prisma/client';
-import { CreateTenantDto, UpdateTenantDto } from '../dto/requests';
+import { CreateTenantDto, UpdateTenantDto } from '../dto';
 
 export interface ITenantService extends IBaseService<Tenant, CreateTenantDto, UpdateTenantDto> {
   /**

@@ -5,10 +5,11 @@ import { ConflictError, NotFoundError } from '../../common/errors/app-error';
 import { LoggerService } from '../../common/logger/logger.service';
 import { EventBus } from '../../domain/events/event-bus.service';
 import { FOLLOW_EVENTS } from '../../domain/events/event-types';
+import { ILogger } from 'src/common/logger/logger.interface';
 
 @Injectable()
 export class FollowServiceImpl implements IFollowService {
-  private readonly logger;
+  private readonly logger: ILogger;
 
   constructor(
     private readonly followRepository: IFollowRepository,

@@ -1,5 +1,5 @@
 import { BaseSerializer, SerializerOptions } from './base.serializer';
-import { Post } from '@prisma/client';
+import { Post } from 'generated/prisma/client';
 
 export interface PostResponse {
   id: string;

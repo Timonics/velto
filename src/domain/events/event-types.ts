@@ -63,6 +63,7 @@ export const FOLLOW_EVENTS = {
 export const COMMENT_EVENTS = {
   CREATED: 'comment.created',
   DELETED: 'comment.deleted',
+  UPDATED: 'comment.updated',
 } as const;
 
 export const POST_EVENTS = {

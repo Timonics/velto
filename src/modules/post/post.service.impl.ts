@@ -7,14 +7,20 @@ import { ILikeRepository } from '../like/like.repository.interface';
 import { LoggerService } from '../../common/logger/logger.service';
 import { EventBus } from '../../domain/events/event-bus.service';
 import { POST_EVENTS } from '../../domain/events/event-types';
-import { Post } from 'generated/prisma/client';
+import { Post, Prisma } from 'generated/prisma/client';
 import { CreatePostDto, UpdatePostDto } from './dto';
 import { NotFoundError } from '../../common/errors/app-error';
-import { ILogger } from 'src/common/logger/logger.interface';
+import { ILogger } from '../../common/logger/logger.interface';
 
 @Injectable()
 export class PostServiceImpl
-  extends BaseServiceImpl<Post, CreatePostDto, UpdatePostDto>
+  extends BaseServiceImpl<
+    Post,
+    CreatePostDto,
+    UpdatePostDto,
+    Prisma.PostCreateInput,
+    Prisma.PostUpdateInput
+  >
   implements IPostService
 {
   protected readonly logger: ILogger;
@@ -29,6 +35,32 @@ export class PostServiceImpl
   ) {
     super(repository);
     this.logger = logger.child('PostService');
+  }
+
+  // Override create to handle tenantId
+  async create(data: CreatePostDto & { tenantId: string }): Promise<Post> {
+    // Validate uniqueness if needed (none for posts)
+    const input: Prisma.PostCreateInput = {
+      mediaUrl: data.mediaUrl,
+      mediaType: data.mediaType,
+      caption: data.caption,
+      isPublished: true,
+      isDeleted: false,
+      likesCount: 0,
+      commentsCount: 0,
+      sharesCount: 0,
+      tenant: { connect: { id: data.tenantId } },
+    };
+    const post = await this.repository.create(input);
+    await this.eventBus.emit({
+      name: POST_EVENTS.CREATED,
+      payload: {
+        postId: post.id,
+        tenantId: post.tenantId,
+        mediaUrl: post.mediaUrl,
+      },
+    });
+    return post;
   }
 
   async getPostsByTenant(
@@ -95,22 +127,7 @@ export class PostServiceImpl
     }
   }
 
-  async create(data: CreatePostDto & { tenantId: string }): Promise<Post> {
-    const post = await super.create({
-      ...data,
-      tenant: { connect: { id: data.tenantId } },
-    });
-    await this.eventBus.emit({
-      name: POST_EVENTS.CREATED,
-      payload: {
-        postId: post.id,
-        tenantId: post.tenantId,
-        mediaUrl: post.mediaUrl,
-      },
-    });
-    return post;
-  }
-
+  // Override delete to soft delete (already handled by repository's update call)
   async delete(id: string): Promise<Post> {
     const post = await this.repository.update(id, { isDeleted: true });
     await this.eventBus.emit({

@@ -1,13 +1,13 @@
 /**
  * Base Repository Implementation – Abstract class using Prisma.
- * 
+ *
  * This class implements IBaseRepository and provides common CRUD operations.
  * Specific repositories extend this class and add custom methods.
- * 
+ *
  * Why abstract?
  * - Cannot be instantiated directly; forces creation of specific repositories.
  * - Provides reusable implementation while allowing overrides.
- * 
+ *
  * @template TDelegate - Prisma model delegate (e.g., prisma.user)
  * @template TModel - Prisma model type
  * @template TCreateInput - Prisma create input type
@@ -15,17 +15,27 @@
  */
 
 import { PrismaService } from '../../infrastructure/database/prisma.service';
-import { IBaseRepository, FindManyOptions, FindOneOptions } from './base.repository.interface';
+import {
+  IBaseRepository,
+  FindManyOptions,
+  FindOneOptions,
+} from './base.repository.interface';
 
-export abstract class BaseRepositoryImpl<TDelegate, TModel, TCreateInput, TUpdateInput>
-  implements IBaseRepository<TModel, TCreateInput, TUpdateInput>
-{
+export abstract class BaseRepositoryImpl<
+  TDelegate,
+  TModel,
+  TCreateInput,
+  TUpdateInput,
+> implements IBaseRepository<TModel, TCreateInput, TUpdateInput> {
   constructor(
     protected readonly prisma: PrismaService,
     protected readonly modelDelegate: TDelegate,
   ) {}
 
-  async findById(id: string, include?: Record<string, boolean>): Promise<TModel | null> {
+  async findById(
+    id: string,
+    include?: Record<string, boolean>,
+  ): Promise<TModel | null> {
     // @ts-expect-error - Prisma delegate types are complex; runtime works
     return this.modelDelegate.findUnique({
       where: { id },

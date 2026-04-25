@@ -1,0 +1,57 @@
+/**
+ * Base Serializer – Explicit response formatting.
+ * 
+ * Why explicit serializers instead of class-transformer?
+ * - Clear control over what data is exposed
+ * - No accidental password/refreshToken leaks
+ * - Easy to add computed fields
+ * - Better performance (no reflection overhead)
+ * - Easier to debug and test
+ * 
+ * Each module implements its own serializer extending this base.
+ */
+
+export interface SerializerOptions {
+  includeTimestamps?: boolean;
+  includeRelations?: boolean;
+}
+
+export abstract class BaseSerializer<TEntity, TResponse> {
+  /**
+   * Serialize a single entity.
+   */
+  abstract serialize(entity: TEntity, options?: SerializerOptions): TResponse;
+
+  /**
+   * Serialize a collection of entities.
+   */
+  serializeMany(entities: TEntity[], options?: SerializerOptions): TResponse[] {
+    return entities.map((entity) => this.serialize(entity, options));
+  }
+
+  /**
+   * Format dates consistently across all serializers.
+   */
+  protected formatDate(date: Date | null | undefined): string | null {
+    if (!date) return null;
+    return date.toISOString();
+  }
+
+  /**
+   * Format price with currency symbol (₦ for NGN).
+   */
+  protected formatPrice(price: number): string {
+    return `₦${price.toLocaleString('en-NG')}`;
+  }
+
+  /**
+   * Sanitize URLs (ensure Cloudinary URLs are HTTPS).
+   */
+  protected sanitizeUrl(url: string | null | undefined): string | null {
+    if (!url) return null;
+    if (url.startsWith('http://')) {
+      return url.replace('http://', 'https://');
+    }
+    return url;
+  }
+}
