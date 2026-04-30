@@ -1,13 +1,11 @@
-import { Controller, Post, Delete, Param, UseGuards } from '@nestjs/common';
-import { IFollowService } from './follow.service.interface';
-import { AuthGuard } from '../../common/guards/auth.guard';
+import { Controller, Post, Delete, Param } from '@nestjs/common';
 import { CurrentUser, CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 import { createSuccessResponse, ApiResponse } from '../../common/dto/api-response.dto';
+import { FollowServiceImpl } from './service/follow.service.impl';
 
 @Controller('follow')
-@UseGuards(AuthGuard)
 export class FollowController {
-  constructor(private readonly followService: IFollowService) {}
+  constructor(private readonly followService: FollowServiceImpl) {}
 
   @Post(':tenantId')
   async follow(

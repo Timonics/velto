@@ -4,12 +4,6 @@
  * This service loads and validates environment variables exactly once.
  * It can be used both with NestJS DI and via static getInstance().
  * 
- * WHY THIS APPROACH?
- * - Singleton ensures validation happens only once.
- * - Can be called from anywhere (logger, queues, scripts) before NestJS starts.
- * - No need to pass config around – just call getInstance().
- * - Works with the logger that also uses getInstance().
- * 
  * USAGE:
  *   const env = EnvironmentService.getInstance();
  *   const port = env.get('PORT');
@@ -136,7 +130,7 @@ export class EnvironmentService {
   }
 }
 
-// Provider for NestJS DI
+// Provider for EnvironmentService
 export const EnvironmentServiceProvider = {
   provide: EnvironmentService,
   useFactory: () => EnvironmentService.getInstance(),

@@ -1,13 +1,17 @@
-import { Controller, Post, Delete, Param, UseGuards } from '@nestjs/common';
-import { ILikeService } from './like.service.interface';
-import { AuthGuard } from '../../common/guards/auth.guard';
-import { CurrentUser, CurrentUserPayload } from '../../common/decorators/current-user.decorator';
-import { createSuccessResponse, ApiResponse } from '../../common/dto/api-response.dto';
+import { Controller, Post, Delete, Param } from '@nestjs/common';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '../../common/decorators/current-user.decorator';
+import {
+  createSuccessResponse,
+  ApiResponse,
+} from '../../common/dto/api-response.dto';
+import { LikeServiceImpl } from './service/like.service.impl';
 
 @Controller('likes')
-@UseGuards(AuthGuard)
 export class LikeController {
-  constructor(private readonly likeService: ILikeService) {}
+  constructor(private readonly likeService: LikeServiceImpl) {}
 
   @Post('posts/:postId')
   async like(

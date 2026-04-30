@@ -1,23 +1,40 @@
-import { Controller, Get, Post, Patch, Delete, Body, Param, Query, UseGuards } from '@nestjs/common';
-import { IPostService } from './post.service.interface';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CreatePostDto, UpdatePostDto } from './dto';
-import { PostSerializer, PostResponse } from '../../serializers/post.serializer';
-import { AuthGuard } from '../../common/guards/auth.guard';
-import { CurrentUser, CurrentUserPayload } from '../../common/decorators/current-user.decorator';
+import {
+  PostSerializer,
+  PostResponse,
+} from '../../serializers/post.serializer';
+import {
+  CurrentUser,
+  CurrentUserPayload,
+} from '../../common/decorators/current-user.decorator';
 import { CurrentTenant } from '../../common/decorators/current-tenant.decorator';
 import { TenantOwnerGuard } from '../../common/guards/tenant-owner.guard';
 import { Public } from '../../common/decorators/public.decorator';
-import { createSuccessResponse, ApiResponse } from '../../common/dto/api-response.dto';
+import {
+  createSuccessResponse,
+  ApiResponse,
+} from '../../common/dto/api-response.dto';
 import { Tenant } from 'generated/prisma/client';
+import { PostServiceImpl } from './service/post.service.impl';
 
 @Controller('posts')
 export class PostController {
   private readonly serializer = new PostSerializer();
 
-  constructor(private readonly postService: IPostService) {}
+  constructor(private readonly postService: PostServiceImpl) {}
 
   @Get('feed')
-  @UseGuards(AuthGuard)
   async getUserFeed(
     @CurrentUser() user: CurrentUserPayload,
     @Query('skip') skip?: string,
@@ -33,8 +50,12 @@ export class PostController {
 
   @Public()
   @Get('trending')
-  async getTrending(@Query('limit') limit?: string): Promise<ApiResponse<PostResponse[]>> {
-    const posts = await this.postService.getTrendingPosts(limit ? parseInt(limit, 10) : 20);
+  async getTrending(
+    @Query('limit') limit?: string,
+  ): Promise<ApiResponse<PostResponse[]>> {
+    const posts = await this.postService.getTrendingPosts(
+      limit ? parseInt(limit, 10) : 20,
+    );
     return createSuccessResponse(this.serializer.serializeMany(posts));
   }
 
@@ -54,17 +75,20 @@ export class PostController {
   }
 
   @Post()
-  @UseGuards(AuthGuard, TenantOwnerGuard)
+  @UseGuards(TenantOwnerGuard)
   async create(
     @Body() data: CreatePostDto,
     @CurrentTenant() tenant: Tenant,
   ): Promise<ApiResponse<PostResponse>> {
-    const post = await this.postService.create({ ...data, tenantId: tenant.id });
+    const post = await this.postService.create({
+      ...data,
+      tenantId: tenant.id,
+    });
     return createSuccessResponse(this.serializer.serialize(post));
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard, TenantOwnerGuard)
+  @UseGuards(TenantOwnerGuard)
   async update(
     @Param('id') id: string,
     @Body() data: UpdatePostDto,
@@ -74,14 +98,13 @@ export class PostController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard, TenantOwnerGuard)
+  @UseGuards(TenantOwnerGuard)
   async delete(@Param('id') id: string): Promise<ApiResponse<null>> {
     await this.postService.delete(id);
     return createSuccessResponse(null, 'Post deleted successfully');
   }
 
   @Post(':id/like')
-  @UseGuards(AuthGuard)
   async toggleLike(
     @Param('id') id: string,
     @CurrentUser() user: CurrentUserPayload,

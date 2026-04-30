@@ -3,12 +3,16 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Inject,
 } from '@nestjs/common';
-import { ITenantRepository } from '../../modules/tenant/repository/tenant.repository.interface';
+// import { ITenantRepository } from '../../modules/tenant/repository/tenant.repository.interface';
 
 @Injectable()
 export class TenantOwnerGuard implements CanActivate {
-  constructor(private readonly tenantRepository: ITenantRepository) {}
+  constructor(
+    // @Inject('ITenantRepository')
+    // private readonly tenantRepository: ITenantRepository,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();

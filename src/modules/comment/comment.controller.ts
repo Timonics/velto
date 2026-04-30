@@ -1,5 +1,5 @@
 import { Controller, Post, Patch, Delete, Body, Param, Query, UseGuards, Get } from '@nestjs/common';
-import { ICommentService } from './comment.service.interface';
+import { ICommentService } from './service/comment.service.interface';
 import { AuthGuard } from '../../common/guards/auth.guard';
 import { CurrentUser, CurrentUserPayload } from '../../common/decorators/current-user.decorator';
 import { Public } from '../../common/decorators/public.decorator';
@@ -7,15 +7,15 @@ import { createSuccessResponse, ApiResponse } from '../../common/dto/api-respons
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { CommentSerializer, CommentResponse } from '../../serializers/comment.serializer';
+import { CommentServiceImpl } from './service/comment.service.impl';
 
 @Controller('comments')
 export class CommentController {
   private readonly serializer = new CommentSerializer();
 
-  constructor(private readonly commentService: ICommentService) {}
+  constructor(private readonly commentService: CommentServiceImpl) {}
 
   @Post()
-  @UseGuards(AuthGuard)
   async create(
     @Body() dto: CreateCommentDto,
     @CurrentUser() user: CurrentUserPayload,
@@ -25,7 +25,6 @@ export class CommentController {
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard)
   async update(
     @Param('id') id: string,
     @Body() dto: UpdateCommentDto,
@@ -36,7 +35,6 @@ export class CommentController {
   }
 
   @Delete(':id')
-  @UseGuards(AuthGuard)
   async delete(
     @Param('id') id: string,
     @CurrentUser() user: CurrentUserPayload,

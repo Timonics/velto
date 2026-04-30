@@ -84,7 +84,6 @@ export class AuthController {
    * Clears cookies and invalidates refresh token.
    */
   @Post('logout')
-  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.OK)
   async logout(
     @CurrentUser() user: any,

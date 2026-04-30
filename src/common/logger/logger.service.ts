@@ -55,7 +55,7 @@ export class LoggerService implements ILogger {
         version: process.env.npm_package_version || '1.0.0',
       },
       format: this.getLogFormat(isProduction),
-      transports: this.getTransports(isProduction),
+      transports: this.getTransports(),
     });
   }
 
@@ -95,7 +95,7 @@ export class LoggerService implements ILogger {
    * - Console: always enabled (visible in Docker/k8s logs)
    * - File rotation: enabled in production or when LOG_FILE_ENABLED=true
    */
-  private getTransports(isProduction: boolean) {
+  private getTransports() {
     const transportsList: any[] = [
       new transports.Console({
         handleExceptions: true, // Catch uncaught exceptions

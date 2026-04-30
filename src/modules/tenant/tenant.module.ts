@@ -6,9 +6,11 @@ import { LoggerService } from '../../common/logger/logger.service';
 import { EventBus } from '../../domain/events/event-bus.service';
 
 @Module({
-  controllers: [TenantController],
   providers: [
-    TenantRepositoryImpl,
+    {
+      provide: 'ITenantRepository',
+      useClass: TenantRepositoryImpl,
+    },
     {
       provide: TenantServiceImpl,
       useFactory: (
@@ -18,9 +20,10 @@ import { EventBus } from '../../domain/events/event-bus.service';
       ) => {
         return new TenantServiceImpl(repo, eventBus, logger);
       },
-      inject: [TenantRepositoryImpl, EventBus, LoggerService],
+      inject: ['ITenantRepository', EventBus, LoggerService],
     },
   ],
-  exports: [TenantServiceImpl, TenantRepositoryImpl],
+  exports: [TenantServiceImpl, 'ITenantRepository'],
+  controllers: [TenantController],
 })
 export class TenantModule {}

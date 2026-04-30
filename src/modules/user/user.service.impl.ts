@@ -1,43 +1,40 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { UserRepositoryImpl } from './user.repository.impl';
 import { IUserService } from './user.service.interface';
 import { Prisma, User } from 'generated/prisma/client';
 import { LoggerService } from '../../common/logger/logger.service';
 import { ILogger } from '../../common/logger/logger.interface';
+import { BaseServiceImpl } from 'src/common/services/base.service.impl';
+import { IUserRepository } from './user.repository.interface';
 
 @Injectable()
-export class UserServiceImpl implements IUserService {
-  private readonly logger: ILogger;
+export class UserServiceImpl
+  extends BaseServiceImpl<User, Prisma.UserCreateInput, Prisma.UserUpdateInput>
+  implements IUserService
+{
+  protected readonly logger: ILogger;
+  protected readonly entityName = 'User';
 
   constructor(
-    private readonly userRepository: UserRepositoryImpl,
+    protected readonly repository: IUserRepository,
     logger: LoggerService,
   ) {
+    super(repository);
     this.logger = logger.child('UserService');
   }
 
-  async create(data: Prisma.UserCreateInput): Promise<User> {
-    return this.userRepository.create(data);
-  }
-
-  async findById(id: string): Promise<User> {
-    const user = await this.userRepository.findById(id);
-    if (!user) throw new NotFoundException(`User with ID ${id} not found`);
-    return user;
-  }
-
   async findByPhone(phone: string): Promise<User | null> {
-    return this.userRepository.findByPhone(phone);
+    return this.repository.findByPhone(phone);
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findByEmail(email);
+    return this.repository.findByEmail(email);
   }
 
   async updateRefreshToken(
     userId: string,
     refreshToken: string | null,
   ): Promise<User> {
-    return this.userRepository.updateRefreshToken(userId, refreshToken);
+    return this.repository.updateRefreshToken(userId, refreshToken);
   }
 }

@@ -2,7 +2,16 @@ import { IBaseService } from '../../../common/services/base.service.interface';
 import { Tenant } from 'generated/prisma/client';
 import { CreateTenantDto, UpdateTenantDto } from '../dto';
 
-export interface ITenantService extends IBaseService<Tenant, CreateTenantDto, UpdateTenantDto> {
+export interface ITenantService extends IBaseService<
+  Tenant,
+  CreateTenantDto,
+  UpdateTenantDto
+> {
+  /**
+   * Override base create to handle tenant-specific logic
+   */
+  create(data: CreateTenantDto & { userId: string }): Promise<Tenant>;
+
   /**
    * Find tenant by slug (from subdomain)
    */
@@ -21,10 +30,18 @@ export interface ITenantService extends IBaseService<Tenant, CreateTenantDto, Up
   /**
    * Get tenants by category
    */
-  getByCategory(category: string, skip?: number, take?: number): Promise<Tenant[]>;
+  getByCategory(
+    category: string,
+    skip?: number,
+    take?: number,
+  ): Promise<Tenant[]>;
 
   /**
    * Get tenants by business type
    */
-  getByBusinessType(businessType: string, skip?: number, take?: number): Promise<Tenant[]>;
+  getByBusinessType(
+    businessType: string,
+    skip?: number,
+    take?: number,
+  ): Promise<Tenant[]>;
 }

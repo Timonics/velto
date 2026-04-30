@@ -15,7 +15,12 @@
  * - Middleware is infrastructure layer, allowed to use repository
  */
 
-import { Injectable, NestMiddleware, NotFoundException } from '@nestjs/common';
+import {
+  Inject,
+  Injectable,
+  NestMiddleware,
+  NotFoundException,
+} from '@nestjs/common';
 import { Request, Response, NextFunction } from 'express';
 import { ITenantRepository } from '../../modules/tenant/repository/tenant.repository.interface';
 import { EnvironmentService } from '../../config/env/env.service';
@@ -27,6 +32,7 @@ export class TenantMiddleware implements NestMiddleware {
   private readonly logger: ILogger;
 
   constructor(
+    @Inject('ITenantRepository')
     private readonly tenantRepository: ITenantRepository,
     private readonly env: EnvironmentService,
     logger: LoggerService,
@@ -51,13 +57,18 @@ export class TenantMiddleware implements NestMiddleware {
     const tenant = await this.tenantRepository.findBySlug(subdomain);
 
     if (!tenant) {
-      this.logger.warn(`Tenant not found for subdomain: ${subdomain}`, { host });
+      this.logger.warn(`Tenant not found for subdomain: ${subdomain}`, {
+        host,
+      });
       throw new NotFoundException(`No tenant found at ${host}`);
     }
 
     // Attach tenant to request for downstream use
     req.tenant = tenant;
-    this.logger.debug(`Tenant resolved`, { slug: tenant.slug, businessName: tenant.businessName });
+    this.logger.debug(`Tenant resolved`, {
+      slug: tenant.slug,
+      businessName: tenant.businessName,
+    });
 
     next();
   }
