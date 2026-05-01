@@ -1,10 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { TenantController } from './tenant.controller';
 import { TenantRepositoryImpl } from './repository/tenant.repository.impl';
 import { TenantServiceImpl } from './services/tenant.service.impl';
 import { LoggerService } from '../../common/logger/logger.service';
 import { EventBus } from '../../domain/events/event-bus.service';
 
+@Global()
 @Module({
   providers: [
     {

@@ -34,7 +34,7 @@ import { NotificationModule } from '../../modules/notification/notification.modu
       { name: 'whatsapp' },
       { name: 'analytics' },
     ),
-    NotificationModule, // Provides EmailService, WhatsAppService
+    NotificationModule,
   ],
   providers: [
     EmailQueueService,

@@ -26,6 +26,8 @@ import { ProductModule } from './modules/product/product.module';
 import { ServiceModule } from './modules/service/service.module';
 import { OrderModule } from './modules/order/order.module';
 import { BookingModule } from './modules/booking/booking.module';
+import { MarketplaceModule } from './modules/marketplace/marketplace.module';
+import { PortfolioModule } from './modules/portfolio/portfolio.module';
 
 @Module({
   imports: [
@@ -35,7 +37,6 @@ import { BookingModule } from './modules/booking/booking.module';
     LoggerModule, // logging (global)
     QueueModule, // Bull queues
     EventBusModule, // domain events
-    NotificationModule, // email, whatsapp, in-app
 
     // JWT
     JwtModule.registerAsync({
@@ -56,6 +57,8 @@ import { BookingModule } from './modules/booking/booking.module';
     ServiceModule,
     OrderModule,
     BookingModule,
+    MarketplaceModule,
+    PortfolioModule
   ],
   providers: [
     {

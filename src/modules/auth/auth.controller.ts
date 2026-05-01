@@ -27,7 +27,6 @@ import { RegisterDto } from './dto/requests/register.request.dto';
 import { LoginDto } from './dto/requests/login.request.dto';
 import { Public } from '../../common/decorators/public.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
-import { AuthGuard } from '../../common/guards/auth.guard';
 import { EnvironmentService } from '../../config/env/env.service';
 import { UserSerializer } from '../../serializers/user.serializer';
 import {

@@ -1,13 +1,6 @@
 /**
  * Base Serializer – Explicit response formatting.
  * 
- * Why explicit serializers instead of class-transformer?
- * - Clear control over what data is exposed
- * - No accidental password/refreshToken leaks
- * - Easy to add computed fields
- * - Better performance (no reflection overhead)
- * - Easier to debug and test
- * 
  * Each module implements its own serializer extending this base.
  */
 

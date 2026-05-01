@@ -1,12 +1,8 @@
 /**
- * Base Repository Implementation – Abstract class using Prisma.
+ * Base Repository Implementation.
  *
  * This class implements IBaseRepository and provides common CRUD operations.
  * Specific repositories extend this class and add custom methods.
- *
- * Why abstract?
- * - Cannot be instantiated directly; forces creation of specific repositories.
- * - Provides reusable implementation while allowing overrides.
  *
  * @template TDelegate - Prisma model delegate (e.g., prisma.user)
  * @template TModel - Prisma model type

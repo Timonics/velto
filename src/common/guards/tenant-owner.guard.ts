@@ -5,13 +5,12 @@ import {
   ForbiddenException,
   Inject,
 } from '@nestjs/common';
-// import { ITenantRepository } from '../../modules/tenant/repository/tenant.repository.interface';
+import { ITenantRepository } from '../../modules/tenant/repository/tenant.repository.interface';
 
 @Injectable()
 export class TenantOwnerGuard implements CanActivate {
   constructor(
-    // @Inject('ITenantRepository')
-    // private readonly tenantRepository: ITenantRepository,
+    @Inject('ITenantRepository') private readonly tenantRepository: ITenantRepository,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

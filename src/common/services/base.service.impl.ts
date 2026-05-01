@@ -1,24 +1,17 @@
+import { IBaseService } from './base.service.interface';
+import { IBaseRepository } from '../repositories/base.repository.interface';
+import { NotFoundError } from '../errors/app-error';
+import { ILogger } from '../logger/logger.interface';
+
 /**
  * Base Service Implementation – Abstract class with common business logic.
- *
- * Features:
- * - Automatic NotFoundException when entity missing.
- * - Logging hooks (override sanitizeForLog).
- * - Standard CRUD operations.
- * - Mapping functions for create/update (allows DTO → Prisma input conversion).
- *
+ *  
  * @template TModel - The Prisma model type (e.g., Tenant, Post)
  * @template TCreateDto - DTO for creation (e.g., CreateTenantDto)
  * @template TUpdateDto - DTO for update (e.g., UpdateTenantDto)
  * @template TCreateInput - Prisma create input type (e.g., Prisma.TenantCreateInput)
  * @template TUpdateInput - Prisma update input type (e.g., Prisma.TenantUpdateInput)
  */
-
-import { IBaseService } from './base.service.interface';
-import { IBaseRepository } from '../repositories/base.repository.interface';
-import { NotFoundError } from '../errors/app-error';
-import { ILogger } from '../logger/logger.interface';
-
 export abstract class BaseServiceImpl<
   TModel,
   TCreateDto,

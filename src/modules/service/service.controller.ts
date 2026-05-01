@@ -46,7 +46,7 @@ export class ServiceController {
   }
 
   @Post()
-  @UseGuards(TenantOwnerGuard) // still needed to check tenant ownership
+  @UseGuards(TenantOwnerGuard)
   async create(
     @Body() data: CreateServiceDto,
     @CurrentTenant() tenant: Tenant,

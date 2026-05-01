@@ -85,28 +85,28 @@ export class EnvironmentVariables {
   // ---------- Cloudinary (optional during development) ----------
   @IsString()
   @IsOptional()
-  CLOUDINARY_CLOUD_NAME?: string;
+  CLOUDINARY_CLOUD_NAME!: string;
 
   @IsString()
   @IsOptional()
-  CLOUDINARY_API_KEY?: string;
+  CLOUDINARY_API_KEY!: string;
 
   @IsString()
   @IsOptional()
-  CLOUDINARY_API_SECRET?: string;
+  CLOUDINARY_API_SECRET!: string;
 
   // ---------- Twilio (WhatsApp) – optional during development ----------
   @IsString()
   @IsOptional()
-  TWILIO_ACCOUNT_SID?: string;
+  TWILIO_ACCOUNT_SID!: string;
 
   @IsString()
   @IsOptional()
-  TWILIO_AUTH_TOKEN?: string;
+  TWILIO_AUTH_TOKEN!: string;
 
   @IsString()
   @IsOptional()
-  TWILIO_WHATSAPP_FROM?: string;
+  TWILIO_WHATSAPP_FROM!: string;
 
   // ---------- Logging ----------
   @IsBoolean()
@@ -121,12 +121,12 @@ export class EnvironmentVariables {
   // ---------- Redis ----------
   @IsString()
   @IsOptional()
-  REDIS_HOST?: string;
+  REDIS_HOST!: string;
 
   @IsNumber()
   @IsOptional()
   @Transform(({ value }) => (value ? parseInt(value, 10) : undefined))
-  REDIS_PORT?: number;
+  REDIS_PORT!: number;
 
   @IsString()
   @IsNotEmpty()
@@ -147,19 +147,19 @@ export class EnvironmentVariables {
   // ---------- Send Grid ----------
   @IsString()
   @IsOptional()
-  SENDGRID_API_KEY?: string;
+  SENDGRID_API_KEY!: string;
 
   @IsString()
   @IsOptional()
-  SENDGRID_FROM_EMAIL?: string;
+  SENDGRID_FROM_EMAIL!: string;
 
   @IsString()
   @IsOptional()
-  SENDGRID_FROM_NAME?: string;
+  SENDGRID_FROM_NAME!: string;
 
   @IsString()
   @IsOptional()
-  FRONTEND_URL?: string;
+  FRONTEND_URL!: string;
 
   // Optional template IDs
   @IsString()

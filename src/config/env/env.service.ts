@@ -2,7 +2,7 @@
  * EnvironmentService – Singleton that provides validated environment variables.
  * 
  * This service loads and validates environment variables exactly once.
- * It can be used both with NestJS DI and via static getInstance().
+ * It can be used both with DI and via static getInstance().
  * 
  * USAGE:
  *   const env = EnvironmentService.getInstance();

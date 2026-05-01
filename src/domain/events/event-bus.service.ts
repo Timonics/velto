@@ -24,10 +24,6 @@ import { RequestContext } from '../../core/context/request-context';
 import { LoggerService } from '../../common/logger/logger.service';
 import { ILogger } from 'src/common/logger/logger.interface';
 
-// interface Queue {
-//   addJob: (eventName: string, event: BaseEvent) => Promise<void>
-// }
-
 type QueueService =
   | EmailQueueService
   | WhatsAppQueueService
