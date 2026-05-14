@@ -21,4 +21,10 @@ export interface IOrderService extends IBaseService<
     skip?: number,
     take?: number,
   ): Promise<Order[]>;
+  confirmOrderByToken(token: string, customerPhone: string): Promise<Order>;
+  getCustomerHistory(
+    customerId: string,
+    skip?: number,
+    take?: number,
+  ): Promise<{ customers: any[]; total: number }>;
 }

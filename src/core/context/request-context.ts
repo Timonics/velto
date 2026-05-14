@@ -7,15 +7,6 @@
  * - Thread-safe and works with NestJS DI
  * - Each HTTP request gets its own isolated context
  *
- * Usage in middleware:
- *   RequestContext.run(() => {
- *     RequestContext.set('correlationId', uuid());
- *     next();
- *   });
- *
- * Usage in service/logger:
- *   const cid = RequestContext.getCorrelationId();
- *
  * This pattern is essential for logging, tracing, and debugging in concurrent environments.
  */
 

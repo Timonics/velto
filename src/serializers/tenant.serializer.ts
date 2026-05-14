@@ -1,5 +1,5 @@
-import { BaseSerializer, SerializerOptions } from './base.serializer';
 import { Tenant } from 'generated/prisma/client';
+import { BaseSerializer, SerializerOptions } from './base.serializer';
 
 export interface TenantResponse {
   id: string;
@@ -18,9 +18,28 @@ export interface TenantResponse {
   isActive: boolean;
   createdAt: string | null;
   updatedAt: string | null;
+  // Branding fields
+  primaryColor: string | null;
+  secondaryColor: string | null;
+  accentColor: string | null;
+  fontFamily: string | null;
+  socialLinks: Record<string, string> | null;
+  heroTitle: string | null;
+  heroSubtitle: string | null;
+  footerText: string | null;
+  // Verification
+  isVerified: boolean;
+  verifiedAt: string | null;
 }
 
+// In serialize method, add all new fields:
 export class TenantSerializer extends BaseSerializer<Tenant, TenantResponse> {
+  private readonly appDomain: string;
+
+  constructor(appDomain: string) {
+    super();
+    this.appDomain = appDomain;
+  }
   serialize(tenant: Tenant, options?: SerializerOptions): TenantResponse {
     const fullAddress =
       [tenant.location, tenant.lga].filter(Boolean).join(', ') || null;
@@ -38,7 +57,7 @@ export class TenantSerializer extends BaseSerializer<Tenant, TenantResponse> {
       bannerUrl: this.sanitizeUrl(tenant.bannerUrl),
       contactPhone: tenant.contactPhone,
       fullAddress,
-      storefrontUrl: `https://${tenant.slug}.${process.env.APP_DOMAIN}`,
+      storefrontUrl: `https://${tenant.slug}.${this.appDomain}`,
       isActive: tenant.isActive,
       createdAt: options?.includeTimestamps
         ? this.formatDate(tenant.createdAt)
@@ -46,6 +65,18 @@ export class TenantSerializer extends BaseSerializer<Tenant, TenantResponse> {
       updatedAt: options?.includeTimestamps
         ? this.formatDate(tenant.updatedAt)
         : null,
+      // Branding
+      primaryColor: tenant.primaryColor,
+      secondaryColor: tenant.secondaryColor,
+      accentColor: tenant.accentColor,
+      fontFamily: tenant.fontFamily,
+      socialLinks: tenant.socialLinks as Record<string, string> | null,
+      heroTitle: tenant.heroTitle,
+      heroSubtitle: tenant.heroSubtitle,
+      footerText: tenant.footerText,
+      // Verification
+      isVerified: tenant.isVerified,
+      verifiedAt: this.formatDate(tenant.verifiedAt),
     };
   }
 }

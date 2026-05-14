@@ -41,6 +41,7 @@ enum OrderStatus {
   CONFIRMED
   COMPLETED
   CANCELLED
+  AWAITING_CONFIRMATION
 }
 
 enum BookingStatus {
@@ -49,6 +50,19 @@ enum BookingStatus {
   COMPLETED
   CANCELLED
   NO_SHOW
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum PaymentHoldStatus {
+  NOT_HELD
+  HELD
+  RELEASED
 }
 
 // ------------------------------
@@ -77,6 +91,7 @@ model User {
   comments  Comment[]
   shares    Share[]
   feedItems FeedItem[]
+  reviews   Review[]
 
   @@index([phone])
   @@index([email])
@@ -108,9 +123,27 @@ model Tenant {
   bannerUrl    String?
   contactPhone String?
   isActive     Boolean      @default(true)
+  isVerified   Boolean   @default(false)
+  verifiedAt   DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  // Paystack escrow fields 
+  paystackSubaccountCode String? @unique // subaccount code from Paystack
+  bankName               String? // e.g., "GTBank"
+  bankAccountNumber      String? // seller's bank account
+  bankAccountName        String? // account holder name (for verification)
+
+  // Branding
+  primaryColor   String?   // hex code, e.g., "#FF6600"
+  secondaryColor String?   // hex code
+  accentColor    String?   // hex code
+  fontFamily     String?   // e.g., "Poppins, sans-serif"
+  socialLinks    Json?     // { instagram: "https://...", facebook: "...", twitter: "...", whatsapp: "..." }
+  heroTitle      String?
+  heroSubtitle   String?
+  footerText     String?
 
   products  Product[]
   services  Service[]
@@ -140,10 +173,15 @@ model Product {
   category    Category
   isAvailable Boolean  @default(true)
 
+  // Denormalized rating fields
+  averageRating Float @default(0)
+  reviewsCount  Int   @default(0)
+
+  // Relation
+  reviews Review[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  orders Order[]
 
   @@index([tenantId])
   @@index([category])
@@ -187,17 +225,25 @@ model PortfolioItem {
 }
 
 model Order {
-  id          String  @id @default(cuid())
-  orderNumber String  @unique
+  id          String @id @default(cuid())
+  orderNumber String @unique
   customerId  String
-  customer    User    @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Restrict)
+  customer    User   @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Restrict)
   tenantId    String
-  tenant      Tenant  @relation(fields: [tenantId], references: [id], onDelete: Restrict)
-  productId   String
-  product     Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  tenant      Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
 
-  quantity        Int
-  totalPrice      Float
+  // Removed productId and quantity
+  // New fields:
+  totalAmount   Float
+  deliveryFee   Float         @default(0)
+  paymentStatus PaymentStatus @default(PENDING)
+  source        String? // e.g., "instagram", "whatsapp", "direct"
+
+  // Escrow-lite fields:
+  paymentHoldStatus PaymentHoldStatus @default(NOT_HELD)
+  releaseToken      String?           @unique
+  autoReleaseAt     DateTime?
+
   deliveryAddress String
   status          OrderStatus @default(PENDING)
   paymentMethod   String?
@@ -205,11 +251,61 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  // relation:
+  orderItems OrderItem[]
+  payments   Payment[]
+
+  // Attribution
+  utmSource   String? // e.g., "instagram", "whatsapp", "facebook"
+  utmMedium   String? // e.g., "social", "cpc", "email"
+  utmCampaign String? // e.g., "summer_sale"
+  utmTerm     String? // paid search term
+  utmContent  String? // A/B test variant
+  reviews     Review[]
+
   @@index([orderNumber])
   @@index([customerId])
+  @@index([utmSource])
   @@index([tenantId])
   @@index([status])
-  @@index([tenantId, status])
+  @@index([paymentStatus])
+}
+
+model OrderItem {
+  id      String @id @default(cuid())
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Snapshot fields (to preserve product details at order time)
+  productId    String // reference to Product, but not a foreign key (optional)
+  productName  String
+  productPrice Float
+  productImage String?
+  quantity     Int
+  unitPrice    Float // price per unit at time of order
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([orderId])
+}
+
+model Payment {
+  id               String        @id @default(cuid())
+  orderId          String
+  order            Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  reference        String        @unique // Paystack transaction reference
+  amount           Float
+  status           PaymentStatus @default(PENDING)
+  paymentMethod    String? // e.g., "card", "bank_transfer"
+  paystackResponse Json? // raw response from Paystack (optional)
+  metadata         Json? // any extra data (customer info, etc.)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  @@index([orderId])
+  @@index([reference])
+  @@index([status])
 }
 
 model Booking {
@@ -251,6 +347,33 @@ model Follow {
   @@unique([followerId, tenantId])
   @@index([followerId])
   @@index([tenantId])
+}
+
+model Review {
+  id         String  @id @default(cuid())
+  rating     Int // 1-5 stars
+  comment    String? @db.Text
+  isVerified Boolean @default(false) // only from completed orders
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orderId   String // reference to the order that made this review possible
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  // Optional: tenant reply
+  reply     String?   @db.Text
+  repliedAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, userId]) // one review per user per product
+  @@index([productId])
+  @@index([userId])
+  @@index([rating])
+  @@index([isVerified])
 }
 
 // ========== Feed & Social Engagement ==========

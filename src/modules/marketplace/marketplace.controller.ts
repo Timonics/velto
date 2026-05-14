@@ -18,15 +18,21 @@ import {
   ApiResponse,
 } from '../../common/dto/api-response.dto';
 import { MarketplaceServiceImpl } from './marketplace.service.impl';
+import { EnvironmentService } from 'src/config/env/env.service';
 
 @Controller('marketplace')
 @Public()
 export class MarketplaceController {
-  private readonly tenantSerializer = new TenantSerializer();
+  private readonly tenantSerializer: TenantSerializer;
   private readonly productSerializer = new ProductSerializer();
   private readonly serviceSerializer = new ServiceSerializer();
 
-  constructor(private readonly marketplaceService: MarketplaceServiceImpl) {}
+  constructor(
+    private readonly marketplaceService: MarketplaceServiceImpl,
+    private readonly env: EnvironmentService,
+  ) {
+    this.tenantSerializer = new TenantSerializer(this.env.get('APP_DOMAIN'));
+  }
 
   @Get('tenants')
   async searchTenants(

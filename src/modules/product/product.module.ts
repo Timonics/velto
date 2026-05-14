@@ -11,13 +11,7 @@ import { LoggerService } from 'src/common/logger/logger.service';
       provide: 'IProductRepository',
       useClass: ProductRepositoryImpl,
     },
-    {
-      provide: ProductServiceImpl,
-      useFactory: (repo: ProductRepositoryImpl, logger: LoggerService) => {
-        return new ProductServiceImpl(repo, logger);
-      },
-      inject: ['IProductRepository', LoggerService],
-    },
+    ProductServiceImpl
   ],
   exports: [ProductServiceImpl, 'IProductRepository'],
 })

@@ -1,4 +1,4 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { BaseServiceImpl } from '../../../common/services/base.service.impl';
 import { IProductService } from './product.service.interface';
 import { IProductRepository } from '../repository/product.repository.interface';
@@ -6,6 +6,7 @@ import { Product, Prisma } from 'generated/prisma/client';
 import { CreateProductDto, UpdateProductDto } from '../dto';
 import { LoggerService } from '../../../common/logger/logger.service';
 import { ILogger } from '../../../common/logger/logger.interface';
+import { NotFoundError } from 'src/common/errors/app-error';
 
 @Injectable()
 export class ProductServiceImpl
@@ -22,7 +23,7 @@ export class ProductServiceImpl
   protected readonly entityName = 'Product';
 
   constructor(
-    @Inject('IProductRepository')
+    @Inject('IProductRepository') 
     protected readonly repository: IProductRepository,
     logger: LoggerService,
   ) {
@@ -64,6 +65,9 @@ export class ProductServiceImpl
 
   async updateStock(productId: string, quantity: number): Promise<Product> {
     const product = await this.findById(productId);
+    if (!product) {
+      throw new NotFoundError(`Product with ID ${productId} not found`);
+    }
     if (product.stock < quantity) {
       throw new Error('Insufficient stock');
     }

@@ -1,8 +1,6 @@
 /**
  * Result type – Functional error handling without throwing exceptions.
  *
- * Inspired by Rust's Result<T, E> and Swift's Result type.
- *
  * Why use Result instead of throwing?
  * - Makes error handling explicit in the type signature.
  * - Prevents uncaught exceptions.

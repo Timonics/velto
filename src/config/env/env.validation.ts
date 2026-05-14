@@ -63,6 +63,11 @@ export class EnvironmentVariables {
   @Transform(({ value }) => value?.trim())
   COOKIE_DOMAIN!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  @Transform(({ value }) => value?.trim())
+  ADMIN_EMAIL!: string;
+
   // ---------- Database ----------
   @IsString()
   @IsNotEmpty()
@@ -193,6 +198,19 @@ export class EnvironmentVariables {
   @IsString()
   @IsOptional()
   SENDGRID_VENDOR_REJECTION_TEMPLATE_ID?: string;
+
+  // ---------- PayStack ----------
+  @IsString()
+  @IsNotEmpty()
+  PAYSTACK_SECRET_KEY!: string;
+
+  @IsString()
+  @IsOptional()
+  PAYSTACK_PUBLIC_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  PAYSTACK_CALLBACK_URL?: string;
 
   /**
    * Cross‑field validation (called after basic validation)

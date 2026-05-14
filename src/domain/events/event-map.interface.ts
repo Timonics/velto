@@ -18,6 +18,7 @@ import {
   FOLLOW_EVENTS,
   LIKE_EVENTS,
   COMMENT_EVENTS,
+  REVIEW_EVENTS,
 } from './event-types';
 
 import type {
@@ -40,6 +41,14 @@ import type {
   CommentCreatedPayload,
   CommentDeletedPayload,
   CommentUpdatedPayload,
+  OrderHeldPayload,
+  OrderCompletedPayload,
+  OrderAutoReleasedPayload,
+  ReviewDeletedPayload,
+  ReviewCreatedPayload,
+  ReviewUpdatedPayload,
+  TenantVerifiedPayload,
+  TenantUnVerifiedPayload,
 } from './event-payloads.interface';
 
 export interface EventMap {
@@ -52,6 +61,9 @@ export interface EventMap {
   // Order events
   [ORDER_EVENTS.CREATED]: OrderCreatedPayload;
   [ORDER_EVENTS.PAID]: OrderPaidPayload;
+  [ORDER_EVENTS.HELD]: OrderHeldPayload;
+  [ORDER_EVENTS.COMPLETED]: OrderCompletedPayload;
+  [ORDER_EVENTS.AUTO_RELEASED]: OrderAutoReleasedPayload;
 
   // Booking events
   [BOOKING_EVENTS.CREATED]: BookingCreatedPayload;
@@ -63,6 +75,8 @@ export interface EventMap {
 
   //Tenant events
   [TENANT_EVENTS.REGISTERED]: TenantRegisteredPayload;
+  [TENANT_EVENTS.VERIFIED]: TenantVerifiedPayload;
+  [TENANT_EVENTS.UNVERIFIED]: TenantUnVerifiedPayload;
 
   //Post events
   [POST_EVENTS.CREATED]: PostCreatedPayload;
@@ -82,6 +96,11 @@ export interface EventMap {
   [COMMENT_EVENTS.CREATED]: CommentCreatedPayload;
   [COMMENT_EVENTS.UPDATED]: CommentUpdatedPayload;
   [COMMENT_EVENTS.DELETED]: CommentDeletedPayload;
+
+  //Review events
+  [REVIEW_EVENTS.CREATED]: ReviewCreatedPayload;
+  [REVIEW_EVENTS.UPDATED]: ReviewUpdatedPayload;
+  [REVIEW_EVENTS.DELETED]: ReviewDeletedPayload;
 }
 
 /**

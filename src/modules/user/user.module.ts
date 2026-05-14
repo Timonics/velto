@@ -1,7 +1,7 @@
 import { Module, Global } from '@nestjs/common';
-import { UserRepositoryImpl } from './user.repository.impl';
-import { UserServiceImpl } from './user.service.impl';
-import { IUserRepository } from './user.repository.interface';
+import { UserRepositoryImpl } from './repository/user.repository.impl';
+import { UserServiceImpl } from './service/user.service.impl';
+import { IUserRepository } from './repository/user.repository.interface';
 import { LoggerService } from 'src/common/logger/logger.service';
 
 @Global()

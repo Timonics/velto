@@ -2,6 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "moduleResolution": "node",
+    // "ignoreDeprecations": "",
     // "resolvePackageJsonExports": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -13,7 +14,11 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "paths": {
+      "generated/*": ["./generated/*"],
+      "src/*": ["./src/*"]
+    },
+    "types": ["jest", "node"],
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,

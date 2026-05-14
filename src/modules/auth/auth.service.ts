@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserServiceImpl } from '../user/user.service.impl';
+import { UserServiceImpl } from '../user/service/user.service.impl';
 import { EventBus } from '../../domain/events/event-bus.service';
 import { USER_EVENTS } from '../../domain/events/event-types';
 import {

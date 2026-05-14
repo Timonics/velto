@@ -32,4 +32,17 @@ export class CreateTenantDto {
   @IsString()
   @IsOptional()
   contactPhone?: string;
+
+  @IsString()
+  @IsOptional()
+  bankName?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(10)
+  bankAccountNumber?: string;
+
+  @IsString()
+  @IsOptional()
+  bankAccountName?: string;
 }

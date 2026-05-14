@@ -30,9 +30,12 @@ export const ORDER_EVENTS = {
   CREATED: 'order.created',
   PAID: 'order.paid',
   SHIPPED: 'order.shipped',
+  HELD: 'order.payment_held',
   DELIVERED: 'order.delivered',
   CANCELLED: 'order.cancelled',
   REFUNDED: 'order.refunded',
+  COMPLETED: 'order.completed',
+  AUTO_RELEASED: 'order.auto_released',
 } as const;
 
 export const BOOKING_EVENTS = {
@@ -53,6 +56,8 @@ export const TENANT_EVENTS = {
   REGISTERED: 'tenant.registered',
   UPDATED: 'tenant.updated',
   DELETED: 'tenant.deleted',
+  VERIFIED: 'tenant.verified',
+  UNVERIFIED: 'tenant.unverified',
 } as const;
 
 export const FOLLOW_EVENTS = {
@@ -77,4 +82,10 @@ export const POST_EVENTS = {
 export const LIKE_EVENTS = {
   CREATED: 'like.created',
   REMOVED: 'like.removed',
+} as const;
+
+export const REVIEW_EVENTS = {
+  CREATED: 'review.created',
+  UPDATED: 'review.updated',
+  DELETED: 'review.deleted',
 } as const;

@@ -7,13 +7,14 @@ import {
   Param,
   Query,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { CreateOrderDto, UpdateOrderStatusDto } from './dto';
 import {
   OrderSerializer,
   OrderResponse,
 } from '../../serializers/order.serializer';
-import {} from '../../common/guards/auth.guard';
 import { TenantOwnerGuard } from '../../common/guards/tenant-owner.guard';
 import {
   CurrentUser,
@@ -38,16 +39,18 @@ export class OrderController {
   async create(
     @Body() dto: CreateOrderDto,
     @CurrentUser() user: CurrentUserPayload,
+    @Req() req: Request,
   ): Promise<ApiResponse<OrderResponse>> {
-    // We need tenantId from the product's tenant. The service will fetch product and get tenantId.
-    // Pass productId and let service resolve tenantId.
-    // Alternatively, require tenantId in DTO. For simplicity, we'll require a `tenantId` field in DTO.
-    // Here we assume DTO includes tenantId. If not, modify DTO.
-    // For brevity, I'll assume DTO has `tenantId` field.
+    const utm = (req as any).utm; // Extracted by UtmMiddleware
+
     const order = await this.orderService.createOrder({
       ...dto,
       customerId: user.id,
-      tenantId: dto['tenantId'], // ensure DTO includes tenantId
+      utmSource: dto.utmSource || utm?.source,
+      utmMedium: dto.utmMedium || utm.medium,
+      utmCampaign: dto.utmCampaign || utm.campaign,
+      utmTerm: dto.utmTerm || utm.term,
+      utmContent: dto.utmContent || utm.content,
     });
     return createSuccessResponse(this.serializer.serialize(order));
   }
@@ -91,6 +94,30 @@ export class OrderController {
     @Body() dto: UpdateOrderStatusDto,
   ): Promise<ApiResponse<OrderResponse>> {
     const order = await this.orderService.updateOrderStatus(id, dto.status);
+    return createSuccessResponse(this.serializer.serialize(order));
+  }
+
+  @Get('customers')
+  @UseGuards(TenantOwnerGuard)
+  async getCustomerHistory(
+    @CurrentTenant() tenant: Tenant,
+    @Query('skip') skip?: string,
+    @Query('take') take?: string,
+  ): Promise<ApiResponse<{ customers: any[]; total: number }>> {
+    const result = await this.orderService.getCustomerHistory(
+      tenant.id,
+      skip ? parseInt(skip, 10) : 0,
+      take ? parseInt(take, 10) : 20,
+    );
+    return createSuccessResponse(result);
+  }
+
+  @Post(':orderId/reorder')
+  async reorder(
+    @Param('orderId') orderId: string,
+    @CurrentUser() user: CurrentUserPayload,
+  ): Promise<ApiResponse<OrderResponse>> {
+    const order = await this.orderService.reorder(orderId, user.id);
     return createSuccessResponse(this.serializer.serialize(order));
   }
 }

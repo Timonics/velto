@@ -1,11 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { UserRepositoryImpl } from './user.repository.impl';
 import { IUserService } from './user.service.interface';
 import { Prisma, User } from 'generated/prisma/client';
-import { LoggerService } from '../../common/logger/logger.service';
-import { ILogger } from '../../common/logger/logger.interface';
-import { BaseServiceImpl } from 'src/common/services/base.service.impl';
-import { IUserRepository } from './user.repository.interface';
+import { LoggerService } from '../../../common/logger/logger.service';
+import { ILogger } from '../../../common/logger/logger.interface';
+import { BaseServiceImpl } from '../../../common/services/base.service.impl';
+import { IUserRepository } from '../repository/user.repository.interface';
 
 @Injectable()
 export class UserServiceImpl

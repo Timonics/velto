@@ -7,8 +7,9 @@ import { IOrderRepository } from './repository/order.repository.interface';
 import { IProductRepository } from '../product/repository/product.repository.interface';
 import { EventBus } from 'src/domain/events/event-bus.service';
 import { LoggerService } from 'src/common/logger/logger.service';
-import { IUserRepository } from '../user/user.repository.interface';
+import { IUserRepository } from '../user/repository/user.repository.interface';
 import { UserModule } from '../user/user.module';
+import { OrderCron } from './order.cron';
 
 @Module({
   imports: [ProductModule, UserModule],
@@ -18,24 +19,9 @@ import { UserModule } from '../user/user.module';
       provide: 'IOrderRepository',
       useClass: OrderRepositoryImpl,
     },
-    {
-      provide: OrderServiceImpl,
-      useFactory: (
-        repo: IOrderRepository,
-        productRepo: IProductRepository,
-        userRepo: IUserRepository,
-        eventBus: EventBus,
-        logger: LoggerService,
-      ) => new OrderServiceImpl(repo, productRepo, userRepo, eventBus, logger),
-      inject: [
-        'IOrderRepository',
-        'IProductRepository',
-        'IUserRepository',
-        EventBus,
-        LoggerService,
-      ],
-    },
+    OrderServiceImpl,
+    OrderCron,
   ],
-  exports: ['IOrderRepository'],
+  exports: ['IOrderRepository', OrderServiceImpl, OrderCron],
 })
 export class OrderModule {}

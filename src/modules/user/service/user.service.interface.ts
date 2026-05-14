@@ -1,5 +1,5 @@
 import { Prisma, User } from 'generated/prisma/client';
-import { IBaseService } from 'src/common/services/base.service.interface';
+import { IBaseService } from '../../../common/services/base.service.interface';
 
 export interface IUserService extends IBaseService<
   User,

@@ -1,12 +1,12 @@
 /**
  * Base Repository Interface – Defines the contract for all repositories.
- * 
+ *
  * Why an interface?
  * - Business logic depends on abstractions, not concrete implementations.
  * - Allows swapping Prisma for another ORM later.
  * - Makes unit testing easy (mock the interface).
  * - Forces consistent API across all repositories.
- * 
+ *
  * @template TModel - The Prisma model type (e.g., User, Tenant)
  * @template TCreateInput - Prisma create input type
  * @template TUpdateInput - Prisma update input type
@@ -29,41 +29,45 @@ export interface IBaseRepository<TModel, TCreateInput, TUpdateInput> {
   /**
    * Find a record by its unique ID.
    */
-  findById(id: string, include?: Record<string, boolean>): Promise<TModel | null>;
+  findById(
+    id: string,
+    include?: Record<string, boolean>,
+    tx?: any,
+  ): Promise<TModel | null>;
 
   /**
    * Find a single record matching criteria.
    */
-  findOne(options: FindOneOptions): Promise<TModel | null>;
+  findOne(options: FindOneOptions, tx?: any): Promise<TModel | null>;
 
   /**
    * Find multiple records with pagination and filtering.
    */
-  findMany(options: FindManyOptions): Promise<TModel[]>;
+  findMany(options: FindManyOptions, tx?: any): Promise<TModel[]>;
 
   /**
    * Count records matching criteria.
    */
-  count(where?: any): Promise<number>;
+  count(where?: any, tx?: any): Promise<number>;
 
   /**
    * Create a new record.
    */
-  create(data: TCreateInput): Promise<TModel>;
+  create(data: TCreateInput, tx?: any): Promise<TModel>;
 
   /**
    * Update a record by ID.
    */
-  update(id: string, data: TUpdateInput): Promise<TModel>;
+  update(id: string, data: TUpdateInput, tx?: any): Promise<TModel>;
 
   /**
    * Delete a record by ID (hard delete).
    * Override in child classes for soft delete.
    */
-  delete(id: string): Promise<TModel>;
+  delete(id: string, tx?: any): Promise<TModel>;
 
   /**
    * Check if a record exists matching criteria.
    */
-  exists(where: any): Promise<boolean>;
+  exists(where: any, tx?: any): Promise<boolean>;
 }

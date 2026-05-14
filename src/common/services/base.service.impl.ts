@@ -37,7 +37,7 @@ export abstract class BaseServiceImpl<
     });
   }
 
-  async findById(id: string): Promise<TModel> {
+  async findById(id: string): Promise<TModel | null> {
     this.logger.debug(`Finding ${this.entityName} by ID`, { id });
     const entity = await this.repository.findById(id);
     if (!entity) {

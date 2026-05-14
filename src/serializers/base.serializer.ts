@@ -1,6 +1,6 @@
 /**
  * Base Serializer – Explicit response formatting.
- * 
+ *
  * Each module implements its own serializer extending this base.
  */
 
@@ -34,7 +34,7 @@ export abstract class BaseSerializer<TEntity, TResponse> {
    * Format price with currency symbol (₦ for NGN).
    */
   protected formatPrice(price: number): string {
-    return `₦${price.toLocaleString('en-NG')}`;
+    return `₦${price.toLocaleString('en-NG', { minimumFractionDigits: 2 })}`;
   }
 
   /**

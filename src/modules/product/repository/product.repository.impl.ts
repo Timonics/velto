@@ -6,14 +6,23 @@ import { Product, Prisma, Category } from 'generated/prisma/client';
 
 @Injectable()
 export class ProductRepositoryImpl
-  extends BaseRepositoryImpl<Prisma.ProductDelegate, Product, Prisma.ProductCreateInput, Prisma.ProductUpdateInput>
+  extends BaseRepositoryImpl<
+    Prisma.ProductDelegate,
+    Product,
+    Prisma.ProductCreateInput,
+    Prisma.ProductUpdateInput
+  >
   implements IProductRepository
 {
   constructor(protected readonly prisma: PrismaService) {
-    super(prisma, prisma.product);
+    super(prisma, prisma.product, 'product');
   }
 
-  async findByTenantId(tenantId: string, skip = 0, take = 20): Promise<Product[]> {
+  async findByTenantId(
+    tenantId: string,
+    skip = 0,
+    take = 20,
+  ): Promise<Product[]> {
     return this.modelDelegate.findMany({
       where: { tenantId, isAvailable: true },
       skip,
@@ -22,7 +31,11 @@ export class ProductRepositoryImpl
     });
   }
 
-  async findByCategory(category: Category, skip = 0, take = 20): Promise<Product[]> {
+  async findByCategory(
+    category: Category,
+    skip = 0,
+    take = 20,
+  ): Promise<Product[]> {
     return this.modelDelegate.findMany({
       where: { category, isAvailable: true },
       skip,
@@ -31,8 +44,13 @@ export class ProductRepositoryImpl
     });
   }
 
-  async updateStock(productId: string, quantity: number): Promise<Product> {
-    return this.modelDelegate.update({
+  async updateStock(
+    productId: string,
+    quantity: number,
+    tx?: any,
+  ): Promise<Product> {
+    const delegate = this.getDelegate(tx);
+    return delegate.update({
       where: { id: productId },
       data: { stock: { decrement: quantity } },
     });

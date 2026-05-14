@@ -1,11 +1,6 @@
 /**
  * EmailQueueService – Adds email jobs to the 'email' Bull queue.
  *
- * JOB TYPES:
- * - user.registered → send verification email
- * - user.password_reset_requested → send password reset email
- * - order.created → send order confirmation
- *
  * Each job has:
  * - Retry attempts: 3
  * - Exponential backoff: 5s delay between retries
@@ -16,11 +11,11 @@ import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bull';
 import { Queue } from 'bull';
 import { BaseEvent } from '../../domain/events/event-map.interface';
-import { ORDER_EVENTS, USER_EVENTS } from 'src/domain/events/event-types';
+import { ORDER_EVENTS, USER_EVENTS } from '../../domain/events/event-types';
 import {
   OrderCreatedPayload,
   UserRegisteredPayload,
-} from 'src/domain/events/event-payloads.interface';
+} from '../../domain/events/event-payloads.interface';
 
 @Injectable()
 export class EmailQueueService {
@@ -33,7 +28,7 @@ export class EmailQueueService {
       attempts: 3,
       backoff: { type: 'exponential', delay: 5000 },
       removeOnComplete: true,
-      removeOnFail: false, // Keep failed jobs for inspection
+      removeOnFail: false, 
       jobId,
     });
   }

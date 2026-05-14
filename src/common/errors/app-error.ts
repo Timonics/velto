@@ -1,11 +1,6 @@
 /**
  * AppError – Base custom error class for the entire application.
  * 
- * WHY NOT USE NESTJS HTTPEXCEPTION DIRECTLY?
- * - We need custom error codes for frontend mapping.
- * - We want to attach additional metadata (e.g., field names, validation details).
- * - We want to distinguish between operational (expected) and programming errors.
- * 
  * All application errors should extend this class or one of its subclasses.
  */
 

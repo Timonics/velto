@@ -41,4 +41,17 @@ export class UpdateTenantDto {
   @IsString()
   @IsOptional()
   bannerUrl?: string;
+
+   @IsString()
+  @IsOptional()
+  bankName?: string;
+
+  @IsString()
+  @IsOptional()
+  @MaxLength(10)
+  bankAccountNumber?: string;
+
+  @IsString()
+  @IsOptional()
+  bankAccountName?: string;
 }

@@ -52,6 +52,49 @@ export interface OrderPaidPayload {
   transactionId: string;
 }
 
+export interface OrderHeldPayload {
+  orderId: string;
+  releaseToken: string;
+  autoReleaseAt: Date;
+  customerPhone: string;
+  customerEmail?: string;
+}
+
+export interface OrderCompletedPayload {
+  orderId: string;
+  token: string;
+  tenantId: string;
+}
+
+export interface OrderAutoReleasedPayload {
+  orderId: string;
+  tenantId: string;
+}
+
+// ========== Review Events ==========
+export interface ReviewCreatedPayload {
+  reviewId: string;
+  productId: string;
+  userId: string;
+  rating: number;
+  isVerified: boolean;
+  comment?: string;
+}
+
+export interface ReviewUpdatedPayload {
+  reviewId: string;
+  productId: string;
+  userId: string;
+  rating?: number;
+  comment?: string;
+}
+
+export interface ReviewDeletedPayload {
+  reviewId: string;
+  productId: string;
+  userId: string;
+}
+
 // ========== Booking Events ==========
 export interface BookingCreatedPayload {
   bookingId: string;
@@ -88,6 +131,18 @@ export interface TenantRegisteredPayload {
   tenantId: string;
   businessName: string;
   slug: string;
+  userId: string;
+}
+
+export interface TenantVerifiedPayload {
+  tenantId: string;
+  businessName: string;
+  userId: string;
+}
+
+export interface TenantUnVerifiedPayload {
+  tenantId: string;
+  businessName: string;
   userId: string;
 }
 

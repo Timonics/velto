@@ -5,9 +5,9 @@ services:
     container_name: velto-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: velto
-      POSTGRES_PASSWORD: velto123
-      POSTGRES_DB: velto_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: Oladotun1
+      POSTGRES_DB: velto
     ports:
       - '5432:5432'
     volumes:

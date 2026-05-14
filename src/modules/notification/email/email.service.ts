@@ -18,7 +18,7 @@
  */
 
 import { Injectable, OnModuleInit } from '@nestjs/common';
-import * as sgMail from '@sendgrid/mail';
+import sgMail from '@sendgrid/mail';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as Handlebars from 'handlebars';

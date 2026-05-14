@@ -24,6 +24,8 @@ export class PrismaService
     const env = EnvironmentService.getInstance();
     const databaseUrl = env.get('DATABASE_URL');
 
+    console.log(databaseUrl);
+
     // Create PostgreSQL connection pool
     const pool = new Pool({ connectionString: databaseUrl });
     const adapter = new PrismaPg(pool);

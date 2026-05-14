@@ -11,7 +11,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { CreateTenantDto, UpdateTenantDto } from './dto';
+import { CreateTenantDto, UpdateBrandingDto, UpdateTenantDto } from './dto';
 import {
   TenantSerializer,
   TenantResponse,
@@ -29,12 +29,19 @@ import {
 } from '../../common/dto/api-response.dto';
 import { NotFoundError } from 'src/common/errors/app-error';
 import { TenantServiceImpl } from './services/tenant.service.impl';
+import { Tenant } from 'generated/prisma/browser';
+import { EnvironmentService } from 'src/config/env/env.service';
 
 @Controller('tenants')
 export class TenantController {
-  private readonly serializer = new TenantSerializer();
+  private readonly serializer: TenantSerializer;
 
-  constructor(private readonly tenantService: TenantServiceImpl) {}
+  constructor(
+    private readonly tenantService: TenantServiceImpl,
+    private readonly env: EnvironmentService,
+  ) {
+    this.serializer = new TenantSerializer(this.env.get('APP_DOMAIN'));
+  }
 
   /**
    * Public route – Get tenant storefront by slug (from subdomain)
@@ -150,6 +157,21 @@ export class TenantController {
   async delete(@Param('id') id: string): Promise<ApiResponse<null>> {
     await this.tenantService.delete(id);
     return createSuccessResponse(null, 'Tenant deactivated successfully');
+  }
+
+  /**
+   * Protected route – Update tenant branding (requires tenant ownership)
+   */
+  @Patch('branding')
+  @UseGuards(TenantOwnerGuard)
+  async updateBranding(
+    @Body() dto: UpdateBrandingDto,
+    @CurrentTenant() tenant: Tenant,
+  ): Promise<ApiResponse<TenantResponse>> {
+    const updated = await this.tenantService.updateBranding(tenant.id, dto);
+    return createSuccessResponse(
+      this.serializer.serialize(updated, { includeTimestamps: true }),
+    );
   }
 
   /**

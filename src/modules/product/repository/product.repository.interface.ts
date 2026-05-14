@@ -16,5 +16,5 @@ export interface IProductRepository extends IBaseRepository<
     skip?: number,
     take?: number,
   ): Promise<Product[]>;
-  updateStock(productId: string, quantity: number): Promise<Product>;
+  updateStock(productId: string, quantity: number, tx?: any): Promise<Product>;
 }

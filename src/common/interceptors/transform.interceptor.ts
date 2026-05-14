@@ -1,7 +1,6 @@
 /**
  * Transform Interceptor – Wraps all successful responses in a standard format.
  * 
- * WHY A TRANSFORM INTERCEPTOR?
  * - Consistent response structure across all endpoints
  * - Separates success response formatting from controller logic
  * - Automatically adds correlation ID and timestamp

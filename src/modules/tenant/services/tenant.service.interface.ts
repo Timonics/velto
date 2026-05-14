@@ -1,6 +1,6 @@
 import { IBaseService } from '../../../common/services/base.service.interface';
 import { Tenant } from 'generated/prisma/client';
-import { CreateTenantDto, UpdateTenantDto } from '../dto';
+import { CreateTenantDto, UpdateBrandingDto, UpdateTenantDto } from '../dto';
 
 export interface ITenantService extends IBaseService<
   Tenant,
@@ -44,4 +44,17 @@ export interface ITenantService extends IBaseService<
     skip?: number,
     take?: number,
   ): Promise<Tenant[]>;
+
+  /**
+   * Verify tenant (used by admin to approve/reject tenant applications)
+   */
+  verifyTenant(tenantId: string, isVerified: boolean): Promise<Tenant>;
+
+  /**
+   * Update tenant branding (used by tenant owners to update their storefront)
+   */
+  updateBranding(
+    tenantId: string,
+    branding: UpdateBrandingDto,
+  ): Promise<Tenant>;
 }
